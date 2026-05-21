@@ -8,6 +8,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { ThemeProvider } from "@/lib/theme";
 import AppLayout from "@/components/AppLayout";
 import DocumentTitle from "@/components/DocumentTitle";
+import LoadingScreen from "@/components/LoadingScreen";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
 import Home from "@/pages/Home";
@@ -42,14 +43,14 @@ const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading...</div>;
+  if (loading) return <LoadingScreen />;
   if (!user) return <Navigate to="/" replace />;
   return <AppLayout>{children}</AppLayout>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Loading...</div>;
+  if (loading) return <LoadingScreen />;
   if (user) return <Navigate to="/home" replace />;
   return <>{children}</>;
 }

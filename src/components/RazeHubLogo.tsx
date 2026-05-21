@@ -15,17 +15,17 @@ export default function RazeHubLogo({ className = "", size = 'md', dark = false 
   };
 
   return (
-    <div className={`font-extrabold ${sizeClasses[size]} ${className} select-none`}>
-      <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
+    <div className={`font-extrabold ${sizeClasses[size]} ${className} select-none flex items-center`}>
+      <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent whitespace-nowrap"
         style={{
-          letterSpacing: '0.15em',
+          letterSpacing: '0.3em',
           fontWeight: 800
         }}>
         RAZE
       </span>
-      <span className="text-foreground dark:text-white ml-2"
+      <span className="text-foreground dark:text-white ml-6 sm:ml-2 whitespace-nowrap"
         style={{
-          letterSpacing: '0.15em',
+          letterSpacing: '0.3em',
           fontWeight: 800
         }}>
         HUB
