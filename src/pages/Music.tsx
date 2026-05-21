@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Slider } from '@/components/ui/slider';
 import { 
   ArrowLeft, Music as MusicIcon, Search, Plus, Heart, List, Play, Pause, 
-  MoreVertical, Trash2, Edit, Users, Star
+  SkipBack, SkipForward, Volume2, Home, Compass, Heart as HeartFilled,
+  Clock, MoreHorizontal, Shuffle, Repeat
 } from 'lucide-react';
 
 // Mock music data
@@ -22,7 +23,7 @@ const MOCK_MUSIC = [
     album: 'Digital Horizons',
     duration: '3:45',
     genre: 'Electronic',
-    cover: 'bg-gradient-to-br from-purple-500 to-pink-600',
+    cover: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
     featured: true,
   },
   {
@@ -32,7 +33,7 @@ const MOCK_MUSIC = [
     album: 'Night Lights',
     duration: '4:12',
     genre: 'Synthwave',
-    cover: 'bg-gradient-to-br from-blue-500 to-cyan-600',
+    cover: 'bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-400',
     featured: true,
   },
   {
@@ -42,7 +43,7 @@ const MOCK_MUSIC = [
     album: 'Space Journey',
     duration: '3:28',
     genre: 'Ambient',
-    cover: 'bg-gradient-to-br from-orange-500 to-red-600',
+    cover: 'bg-gradient-to-br from-orange-600 via-red-500 to-pink-500',
     featured: false,
   },
   {
@@ -52,7 +53,7 @@ const MOCK_MUSIC = [
     album: '80s Revival',
     duration: '4:05',
     genre: 'Synthwave',
-    cover: 'bg-gradient-to-br from-indigo-500 to-purple-600',
+    cover: 'bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-500',
     featured: true,
   },
   {
@@ -62,7 +63,7 @@ const MOCK_MUSIC = [
     album: 'Code Dreams',
     duration: '3:55',
     genre: 'Electronic',
-    cover: 'bg-gradient-to-br from-green-500 to-teal-600',
+    cover: 'bg-gradient-to-br from-green-600 via-emerald-500 to-teal-500',
     featured: false,
   },
   {
@@ -72,7 +73,27 @@ const MOCK_MUSIC = [
     album: 'Galaxy Sounds',
     duration: '4:30',
     genre: 'Ambient',
-    cover: 'bg-gradient-to-br from-yellow-500 to-orange-600',
+    cover: 'bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500',
+    featured: false,
+  },
+  {
+    id: 7,
+    title: 'Electric Pulse',
+    artist: 'Voltage',
+    album: 'High Energy',
+    duration: '3:15',
+    genre: 'Electronic',
+    cover: 'bg-gradient-to-br from-pink-600 via-rose-500 to-red-500',
+    featured: true,
+  },
+  {
+    id: 8,
+    title: 'Cosmic Journey',
+    artist: 'Space Cadets',
+    album: 'Beyond Stars',
+    duration: '5:20',
+    genre: 'Ambient',
+    cover: 'bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-500',
     featured: false,
   },
 ];
@@ -85,7 +106,7 @@ const MOCK_FRIENDS_PLAYLISTS = [
     owner: 'Alex',
     ownerAvatar: '#FF6B6B',
     songCount: 12,
-    cover: 'bg-gradient-to-br from-blue-400 to-purple-500',
+    cover: 'bg-gradient-to-br from-blue-500 to-purple-600',
   },
   {
     id: 2,
@@ -103,7 +124,7 @@ export default function Music() {
   const { toast } = useToast();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTab, setSelectedTab] = useState('discover');
+  const [selectedSection, setSelectedSection] = useState('home');
   const [favorites, setFavorites] = useState<number[]>(() => {
     const saved = localStorage.getItem('music-favorites');
     return saved ? JSON.parse(saved) : [];
@@ -117,6 +138,12 @@ export default function Music() {
   const [selectedPlaylist, setSelectedPlaylist] = useState<any>(null);
   const [addToPlaylistOpen, setAddToPlaylistOpen] = useState(false);
   const [songToAdd, setSongToAdd] = useState<any>(null);
+  
+  // Player state
+  const [currentSong, setCurrentSong] = useState<any>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState([30]);
+  const [volume, setVolume] = useState([70]);
 
   // Filter music based on search
   const filteredMusic = MOCK_MUSIC.filter(music =>
@@ -197,336 +224,499 @@ export default function Music() {
 
   const openPlaylist = (playlist: any) => {
     setSelectedPlaylist(playlist);
-    setSelectedTab('playlist');
+    setSelectedSection('playlist');
   };
 
   const getPlaylistSongs = (playlist: any) => {
     return MOCK_MUSIC.filter(music => playlist.songs.includes(music.id));
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <MusicIcon className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">Music</h1>
-          </div>
-          <Button onClick={() => setCreatePlaylistOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Playlist
-          </Button>
-        </div>
+  const playSong = (song: any) => {
+    setCurrentSong(song);
+    setIsPlaying(true);
+  };
 
-        {/* Search */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search music, artists, genres..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="discover">Discover</TabsTrigger>
-            <TabsTrigger value="favorites">Favorites</TabsTrigger>
-            <TabsTrigger value="playlists">My Playlists</TabsTrigger>
-            <TabsTrigger value="friends">Friends</TabsTrigger>
-          </TabsList>
-
-          {/* Discover Tab */}
-          <TabsContent value="discover" className="mt-6">
-            <div className="space-y-6">
-              {/* Featured */}
-              <div>
-                <h2 className="text-xl font-semibold mb-4">Featured</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {MOCK_MUSIC.filter(m => m.featured).map(music => (
-                    <Card key={music.id} className="overflow-hidden hover:border-primary/50 transition-colors">
-                      <div className={`h-32 ${music.cover} relative`}>
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          className="absolute bottom-2 right-2 rounded-full"
-                        >
-                          <Play className="h-4 w-4" />
-                        </Button>
+  const renderContent = () => {
+    switch (selectedSection) {
+      case 'home':
+        return (
+          <div className="space-y-8">
+            {/* Featured Section */}
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Featured</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {MOCK_MUSIC.filter(m => m.featured).map(music => (
+                  <div 
+                    key={music.id} 
+                    className="group cursor-pointer"
+                    onClick={() => playSong(music)}
+                  >
+                    <div className={`aspect-square rounded-lg ${music.cover} mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all`}>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Play className="h-12 w-12 text-white fill-white" />
                       </div>
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base">{music.title}</CardTitle>
-                        <CardDescription>{music.artist}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline">{music.genre}</Badge>
-                          <span className="text-sm text-muted-foreground">{music.duration}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                    </div>
+                    <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                  </div>
+                ))}
               </div>
+            </section>
 
-              {/* All Music */}
-              <div>
-                <h2 className="text-xl font-semibold mb-4">All Music</h2>
-                <div className="space-y-2">
-                  {filteredMusic.map(music => (
-                    <Card key={music.id} className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors">
-                      <div className={`w-16 h-16 rounded ${music.cover} flex-shrink-0`} />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
-                        <p className="text-sm text-muted-foreground">{music.artist} • {music.album}</p>
+            {/* Made For You */}
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Made For You</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {MOCK_MUSIC.slice(0, 5).map(music => (
+                  <div 
+                    key={music.id} 
+                    className="group cursor-pointer"
+                    onClick={() => playSong(music)}
+                  >
+                    <div className={`aspect-square rounded-lg ${music.cover} mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all`}>
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Play className="h-12 w-12 text-white fill-white" />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{music.genre}</Badge>
-                        <span className="text-sm text-muted-foreground">{music.duration}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => toggleFavorite(music.id)}
-                        >
-                          <Heart className={`h-4 w-4 ${favorites.includes(music.id) ? 'fill-red-500 text-red-500' : ''}`} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSongToAdd(music);
-                            setAddToPlaylistOpen(true);
-                          }}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Play className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
+                    </div>
+                    <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                  </div>
+                ))}
               </div>
-            </div>
-          </TabsContent>
+            </section>
 
-          {/* Favorites Tab */}
-          <TabsContent value="favorites" className="mt-6">
+            {/* Recently Played */}
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Recently Played</h2>
+              <div className="space-y-2">
+                {MOCK_MUSIC.slice(0, 6).map(music => (
+                  <div 
+                    key={music.id}
+                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    onClick={() => playSong(music)}
+                  >
+                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{music.duration}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        );
+
+      case 'search':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-foreground">Search Results</h2>
+            {filteredMusic.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No results found for "{searchQuery}"
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredMusic.map(music => (
+                  <div 
+                    key={music.id}
+                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    onClick={() => playSong(music)}
+                  >
+                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{music.artist} • {music.album}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{music.genre}</Badge>
+                      <span className="text-sm text-muted-foreground">{music.duration}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(music.id);
+                        }}
+                      >
+                        <Heart className={`h-4 w-4 ${favorites.includes(music.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSongToAdd(music);
+                          setAddToPlaylistOpen(true);
+                        }}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'favorites':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-foreground">Liked Songs</h2>
             {favoriteSongs.length === 0 ? (
               <div className="text-center py-12">
-                <Heart className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <HeartFilled className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">No favorites yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-sm text-muted-foreground">
                   Start adding music to your favorites
                 </p>
               </div>
             ) : (
               <div className="space-y-2">
                 {favoriteSongs.map(music => (
-                  <Card key={music.id} className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors">
-                    <div className={`w-16 h-16 rounded ${music.cover} flex-shrink-0`} />
+                  <div 
+                    key={music.id}
+                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    onClick={() => playSong(music)}
+                  >
+                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
-                      <p className="text-sm text-muted-foreground">{music.artist} • {music.album}</p>
+                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{music.artist} • {music.album}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-muted-foreground">{music.duration}</span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => toggleFavorite(music.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(music.id);
+                        }}
                       >
                         <Heart className="h-4 w-4 fill-red-500 text-red-500" />
                       </Button>
-                      <Button variant="ghost" size="icon">
-                        <Play className="h-4 w-4" />
-                      </Button>
                     </div>
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}
-          </TabsContent>
+          </div>
+        );
 
-          {/* My Playlists Tab */}
-          <TabsContent value="playlists" className="mt-6">
-            {selectedPlaylist ? (
-              <div className="space-y-4">
-                <Button variant="ghost" onClick={() => setSelectedPlaylist(null)}>
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Playlists
-                </Button>
-                <div className="flex items-center gap-4">
-                  <div className="w-32 h-32 rounded bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                    <List className="h-12 w-12 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-foreground">{selectedPlaylist.name}</h2>
-                    <p className="text-muted-foreground">{selectedPlaylist.songs.length} songs</p>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {getPlaylistSongs(selectedPlaylist).map(music => (
-                    <Card key={music.id} className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors">
-                      <div className={`w-16 h-16 rounded ${music.cover} flex-shrink-0`} />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
-                        <p className="text-sm text-muted-foreground">{music.artist} • {music.album}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">{music.duration}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeFromPlaylist(selectedPlaylist.id, music.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Play className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
-                  {getPlaylistSongs(selectedPlaylist).length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      This playlist is empty
-                    </div>
-                  )}
-                </div>
+      case 'playlists':
+        return selectedPlaylist ? (
+          <div className="space-y-6">
+            <Button variant="ghost" onClick={() => setSelectedPlaylist(null)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Playlists
+            </Button>
+            <div className="flex items-center gap-6">
+              <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl">
+                <List className="h-20 w-20 text-white" />
               </div>
-            ) : (
-              <div className="space-y-4">
-                {customPlaylists.length === 0 ? (
-                  <div className="text-center py-12">
-                    <List className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No playlists yet</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Create your first playlist to organize your music
-                    </p>
-                    <Button onClick={() => setCreatePlaylistOpen(true)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Playlist
+              <div>
+                <p className="text-sm text-muted-foreground uppercase tracking-wider">Playlist</p>
+                <h1 className="text-4xl font-bold text-foreground mb-2">{selectedPlaylist.name}</h1>
+                <p className="text-muted-foreground">{selectedPlaylist.songs.length} songs</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {getPlaylistSongs(selectedPlaylist).map((music, index) => (
+                <div 
+                  key={music.id}
+                  className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                  onClick={() => playSong(music)}
+                >
+                  <span className="w-6 text-center text-muted-foreground">{index + 1}</span>
+                  <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-foreground truncate">{music.title}</h3>
+                    <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{music.duration}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromPlaylist(selectedPlaylist.id, music.id);
+                      }}
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
                     </Button>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {customPlaylists.map(playlist => (
-                      <Card 
-                        key={playlist.id} 
-                        className="cursor-pointer hover:border-primary/50 transition-colors"
-                        onClick={() => openPlaylist(playlist)}
-                      >
-                        <div className="h-32 bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                          <List className="h-12 w-12 text-white" />
-                        </div>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-base">{playlist.name}</CardTitle>
-                          <CardDescription>{playlist.songs.length} songs</CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">
-                              Created {new Date(playlist.createdAt).toLocaleDateString()}
-                            </span>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                deletePlaylist(playlist.id);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Friends Tab */}
-          <TabsContent value="friends" className="mt-6">
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Friends' Playlists</h2>
-              {MOCK_FRIENDS_PLAYLISTS.map(playlist => (
-                <Card key={playlist.id} className="flex items-center gap-4 p-4 hover:bg-accent/50 transition-colors">
-                  <div className={`w-16 h-16 rounded ${playlist.cover} flex-shrink-0`} />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground truncate">{playlist.name}</h3>
-                    <p className="text-sm text-muted-foreground">By {playlist.owner} • {playlist.songCount} songs</p>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <Play className="h-4 w-4" />
-                  </Button>
-                </Card>
+                </div>
               ))}
-              <div className="text-center py-8 text-muted-foreground text-sm">
-                Friends can create up to 1 playlist each
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Create Playlist Dialog */}
-        <Dialog open={createPlaylistOpen} onOpenChange={setCreatePlaylistOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Playlist</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Input
-                placeholder="Playlist name"
-                value={newPlaylistName}
-                onChange={(e) => setNewPlaylistName(e.target.value)}
-              />
-              <Button className="w-full" onClick={createPlaylist}>
-                Create
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Add to Playlist Dialog */}
-        <Dialog open={addToPlaylistOpen} onOpenChange={setAddToPlaylistOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add to Playlist</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-2">
-              {customPlaylists.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No playlists yet. Create one first!</p>
-              ) : (
-                customPlaylists.map(playlist => (
-                  <Button
-                    key={playlist.id}
-                    variant="outline"
-                    className="w-full justify-start"
-                    onClick={() => addToPlaylist(playlist.id)}
-                  >
-                    <List className="h-4 w-4 mr-2" />
-                    {playlist.name}
-                  </Button>
-                ))
+              {getPlaylistSongs(selectedPlaylist).length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  This playlist is empty
+                </div>
               )}
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-foreground">Your Playlists</h2>
+              <Button onClick={() => setCreatePlaylistOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Playlist
+              </Button>
+            </div>
+            {customPlaylists.length === 0 ? (
+              <div className="text-center py-12">
+                <List className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No playlists yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Create your first playlist to organize your music
+                </p>
+                <Button onClick={() => setCreatePlaylistOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Playlist
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {customPlaylists.map(playlist => (
+                  <div 
+                    key={playlist.id} 
+                    className="group cursor-pointer"
+                    onClick={() => openPlaylist(playlist)}
+                  >
+                    <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all flex items-center justify-center">
+                      <List className="h-16 w-16 text-white" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Play className="h-12 w-12 text-white fill-white" />
+                      </div>
+                    </div>
+                    <h3 className="font-semibold text-foreground truncate">{playlist.name}</h3>
+                    <p className="text-sm text-muted-foreground">{playlist.songs.length} songs</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'friends':
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-foreground">Friends' Playlists</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {MOCK_FRIENDS_PLAYLISTS.map(playlist => (
+                <div key={playlist.id} className="group cursor-pointer">
+                  <div className={`aspect-square rounded-lg ${playlist.cover} mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all flex items-center justify-center`}>
+                    <List className="h-16 w-16 text-white" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Play className="h-12 w-12 text-white fill-white" />
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-foreground truncate">{playlist.name}</h3>
+                  <p className="text-sm text-muted-foreground">By {playlist.owner} • {playlist.songCount} songs</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-center py-8 text-muted-foreground text-sm">
+              Friends can create up to 1 playlist each
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-background">
+      {/* Sidebar */}
+      <aside className="w-64 bg-black/10 dark:bg-black/40 p-4 flex flex-col gap-4">
+        <div className="flex items-center gap-3 mb-4">
+          <MusicIcon className="h-8 w-8 text-primary" />
+          <h1 className="text-xl font-bold text-foreground">Music</h1>
+        </div>
+
+        <nav className="space-y-2">
+          <Button
+            variant={selectedSection === 'home' ? 'secondary' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setSelectedSection('home')}
+          >
+            <Home className="h-5 w-5 mr-3" />
+            Home
+          </Button>
+          <Button
+            variant={selectedSection === 'search' ? 'secondary' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setSelectedSection('search')}
+          >
+            <Search className="h-5 w-5 mr-3" />
+            Search
+          </Button>
+          <Button
+            variant={selectedSection === 'favorites' ? 'secondary' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setSelectedSection('favorites')}
+          >
+            <HeartFilled className="h-5 w-5 mr-3" />
+            Liked Songs
+          </Button>
+        </nav>
+
+        <div className="mt-6">
+          <Button
+            variant="ghost"
+            className="w-full justify-start mb-2"
+            onClick={() => setCreatePlaylistOpen(true)}
+          >
+            <Plus className="h-5 w-5 mr-3" />
+            Create Playlist
+          </Button>
+          <div className="space-y-1">
+            {customPlaylists.map(playlist => (
+              <Button
+                key={playlist.id}
+                variant={selectedSection === 'playlists' && selectedPlaylist?.id === playlist.id ? 'secondary' : 'ghost'}
+                className="w-full justify-start text-sm"
+                onClick={() => openPlaylist(playlist)}
+              >
+                <List className="h-4 w-4 mr-3" />
+                {playlist.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-auto">
+          <Button
+            variant={selectedSection === 'friends' ? 'secondary' : 'ghost'}
+            className="w-full justify-start"
+            onClick={() => setSelectedSection('friends')}
+          >
+            <Users className="h-5 w-5 mr-3" />
+            Friends' Playlists
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto p-6 pb-32">
+        {/* Search Bar */}
+        {selectedSection === 'search' && (
+          <div className="mb-6">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search music, artists, genres..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+        )}
+
+        {renderContent()}
+      </main>
+
+      {/* Player Bar */}
+      {currentSong && (
+        <div className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border px-4 flex items-center gap-4 z-50">
+          <div className={`w-14 h-14 rounded ${currentSong.cover} flex-shrink-0`} />
+          <div className="flex-1 min-w-0">
+            <h3 className="font-medium text-foreground truncate">{currentSong.title}</h3>
+            <p className="text-sm text-muted-foreground truncate">{currentSong.artist}</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon">
+              <Shuffle className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <SkipBack className="h-4 w-4" />
+            </Button>
+            <Button size="icon" className="h-10 w-10 rounded-full">
+              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-current" />}
+            </Button>
+            <Button variant="ghost" size="icon">
+              <SkipForward className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Repeat className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex items-center gap-2 w-48">
+            <Volume2 className="h-4 w-4 text-muted-foreground" />
+            <Slider
+              value={volume}
+              onValueChange={setVolume}
+              max={100}
+              step={1}
+              className="flex-1"
+            />
+          </div>
+          <div className="flex items-center gap-2 w-32">
+            <span className="text-xs text-muted-foreground">1:23</span>
+            <Slider
+              value={progress}
+              onValueChange={setProgress}
+              max={100}
+              step={1}
+              className="flex-1"
+            />
+            <span className="text-xs text-muted-foreground">{currentSong.duration}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Create Playlist Dialog */}
+      <Dialog open={createPlaylistOpen} onOpenChange={setCreatePlaylistOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Playlist</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Playlist name"
+              value={newPlaylistName}
+              onChange={(e) => setNewPlaylistName(e.target.value)}
+            />
+            <Button className="w-full" onClick={createPlaylist}>
+              Create
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add to Playlist Dialog */}
+      <Dialog open={addToPlaylistOpen} onOpenChange={setAddToPlaylistOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to Playlist</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {customPlaylists.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No playlists yet. Create one first!</p>
+            ) : (
+              customPlaylists.map(playlist => (
+                <Button
+                  key={playlist.id}
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => addToPlaylist(playlist.id)}
+                >
+                  <List className="h-4 w-4 mr-2" />
+                  {playlist.name}
+                </Button>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

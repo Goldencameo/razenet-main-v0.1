@@ -21,7 +21,7 @@ BEGIN
   
   -- Only create profile if it doesn't already exist
   IF NOT EXISTS (
-    SELECT 1 FROM public.profiles WHERE user_id = NEW.id
+    SELECT 1 FROM public.profiles WHERE user_id::text = NEW.id::text
   ) THEN
     INSERT INTO public.profiles (user_id, username, username_lower, display_name, email, avatar_color)
     VALUES (
@@ -36,7 +36,7 @@ BEGIN
   
   -- Insert user role if not exists
   IF NOT EXISTS (
-    SELECT 1 FROM public.user_roles WHERE user_id = NEW.id
+    SELECT 1 FROM public.user_roles WHERE user_id::text = NEW.id::text
   ) THEN
     INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'user');
   END IF;

@@ -11,13 +11,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { Sun, Moon, Monitor, AlertTriangle, Lock, Shield, Clock, UserCheck, MessageSquare, Gamepad2, Copy, Check, CreditCard, Trash2 } from 'lucide-react';
+import { Sun, Moon, Monitor, AlertTriangle, Lock, Shield, Clock, UserCheck, MessageSquare, Gamepad2, Copy, Check, CreditCard, Trash2, Edit2 } from 'lucide-react';
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { validateUsername } from '@/lib/username-validation';
 
 export default function SettingsPage() {
   const { profile, signOut, refreshProfile } = useAuth();
@@ -49,7 +51,126 @@ export default function SettingsPage() {
   const [displayName, setDisplayName] = useState(profile?.display_name || '');
   const [email, setEmail] = useState(profile?.email || '');
   const [saving, setSaving] = useState(false);
+  
+  // Username change state
+  const [usernameChangeOpen, setUsernameChangeOpen] = useState(false);
+  const [newUsername, setNewUsername] = useState('');
+  const [usernameError, setUsernameError] = useState('');
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [canChangeUsername, setCanChangeUsername] = useState(false);
+  const [nextChangeDate, setNextChangeDate] = useState<Date | null>(null);
 
+  // Check if user can change username
+  useEffect(() => {
+    const checkUsernameChangeEligibility = async () => {
+      if (!profile) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('username_changed_at')
+        .eq('user_id', profile.user_id)
+        .single();
+      
+      if (data?.username_changed_at) {
+        const changeDate = new Date(data.username_changed_at);
+        const now = new Date();
+        const daysSinceChange = Math.floor((now.getTime() - changeDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysSinceChange >= 7) {
+          setCanChangeUsername(true);
+          setNextChangeDate(null);
+        } else {
+          setCanChangeUsername(false);
+          const nextChange = new Date(changeDate.getTime() + 7 * 24 * 60 * 60 * 1000);
+          setNextChangeDate(nextChange);
+        }
+      } else {
+        setCanChangeUsername(true);
+        setNextChangeDate(null);
+      }
+    };
+    
+    checkUsernameChangeEligibility();
+  }, [profile]);
+
+  // Check username availability
+  useEffect(() => {
+    if (!newUsername) {
+      setUsernameAvailable(null);
+      setUsernameError('');
+      return;
+    }
+    
+    const validation = validateUsername(newUsername);
+    if (!validation.valid) {
+      setUsernameError(validation.error || '');
+      setUsernameAvailable(null);
+      return;
+    }
+    
+    setUsernameError('');
+    setCheckingUsername(true);
+    
+    const timeout = setTimeout(async () => {
+      const { data, error } = await supabase.rpc('check_username_available', { desired_username: newUsername });
+      setCheckingUsername(false);
+      if (!error && data !== null) {
+        setUsernameAvailable(data);
+        if (!data) setUsernameError('This username is already taken');
+      }
+    }, 500);
+    
+    return () => clearTimeout(timeout);
+  }, [newUsername]);
+
+  const handleChangeUsername = async () => {
+    if (!profile || !newUsername) return;
+    
+    const validation = validateUsername(newUsername);
+    if (!validation.valid) {
+      setUsernameError(validation.error || '');
+      return;
+    }
+    
+    if (!usernameAvailable) {
+      setUsernameError('This username is already taken');
+      return;
+    }
+    
+    setSaving(true);
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        username: newUsername,
+        username_lower: newUsername.toLowerCase(),
+      })
+      .eq('user_id', profile.user_id);
+    
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Username changed', description: `Your username is now @${newUsername}` });
+      setUsernameChangeOpen(false);
+      setNewUsername('');
+      refreshProfile();
+      // Recheck eligibility
+      const { data } = await supabase
+        .from('profiles')
+        .select('username_changed_at')
+        .eq('user_id', profile.user_id)
+        .single();
+      if (data?.username_changed_at) {
+        const nextChange = new Date(data.username_changed_at.getTime() + 7 * 24 * 60 * 60 * 1000);
+        setNextChangeDate(nextChange);
+        setCanChangeUsername(false);
+      }
+    }
+    
+    setSaving(false);
+  };
+  
   const [countryCode, setCountryCode] = useState('+1');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [notifFriendRequests, setNotifFriendRequests] = useState(true);
@@ -268,8 +389,24 @@ export default function SettingsPage() {
                 <div>
                   <p className="font-medium text-foreground">{t('settings.username')}</p>
                   <p className="text-xs text-muted-foreground">{t('settings.usernameDesc')}</p>
+                  {!canChangeUsername && nextChangeDate && (
+                    <p className="text-xs text-orange-500 mt-1">
+                      Can change again on {nextChangeDate.toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
-                <Input value={`@${profile?.username || ''}`} disabled className="w-[260px] text-right opacity-60" />
+                <div className="flex items-center gap-2">
+                  <Input value={`@${profile?.username || ''}`} disabled className="w-[200px] text-right opacity-60" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setUsernameChangeOpen(true)}
+                    disabled={!canChangeUsername}
+                  >
+                    <Edit2 className="h-4 w-4 mr-1" />
+                    Change
+                  </Button>
+                </div>
               </div>
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <div>
@@ -1484,6 +1621,46 @@ export default function SettingsPage() {
 
   return (
     <div className="p-4 sm:p-6">
+      {/* Username Change Dialog */}
+      <Dialog open={usernameChangeOpen} onOpenChange={setUsernameChangeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Username</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="new-username">New Username</Label>
+              <Input
+                id="new-username"
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                placeholder="Enter new username"
+                className={usernameError ? 'border-destructive' : ''}
+              />
+              {usernameError && <p className="text-xs text-destructive mt-1">{usernameError}</p>}
+              {!usernameError && usernameAvailable === true && (
+                <p className="text-xs text-green-600 mt-1">Username is available!</p>
+              )}
+              {checkingUsername && <p className="text-xs text-muted-foreground mt-1">Checking availability...</p>}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              You can only change your username once every 7 days. This change cannot be undone.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUsernameChangeOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleChangeUsername}
+              disabled={!newUsername || !!usernameError || !usernameAvailable || saving}
+            >
+              {saving ? 'Changing...' : 'Change Username'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">{t('settings.title')}</h1>
         <span className="text-[11px] sm:text-xs text-muted-foreground">
