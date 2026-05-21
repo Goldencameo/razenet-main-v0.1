@@ -79,7 +79,11 @@ export default function Signup() {
       email: signupEmail,
       password,
       options: {
-        data: { username, avatar_color: avatarColor },
+        data: { 
+          username: username.trim(),
+          avatar_color: avatarColor,
+          display_name: username.trim()
+        },
         emailRedirectTo: redirectUrl,
       },
     });
@@ -115,24 +119,55 @@ export default function Signup() {
     const capturedUsername = username?.trim() || '';
     console.log("capturedUsername:", capturedUsername);
     
-    const { data: profile, error: profileError } = await supabase
+    // Check if profile already exists (from trigger)
+    const { data: existingProfile } = await supabase
       .from('profiles')
-      .upsert(
-        {
-          user_id: data.user.id,
-          username: capturedUsername, // should be "Glagol"
-          username_lower: capturedUsername.toLowerCase(), // "glagol"
-          display_name: capturedUsername, // "Glagol"
-          avatar_color: avatarColor,
-          status: 'invisible' as const,
-        },
-        { onConflict: 'user_id' }
-      )
-      .select()
+      .select('username')
+      .eq('user_id', data.user.id)
       .single();
     
-    if (profileError) console.error(profileError);
-    console.log('🔍 Profile upsert result:', profile);
+    let profileError = null;
+    
+    if (existingProfile) {
+      console.log('Profile already exists from trigger:', existingProfile);
+      // Update the existing profile with the correct username
+      const { data: updatedProfile, error: updateError } = await supabase
+        .from('profiles')
+        .update({
+          username: capturedUsername,
+          username_lower: capturedUsername.toLowerCase(),
+          display_name: capturedUsername,
+        })
+        .eq('user_id', data.user.id)
+        .select()
+        .single();
+      
+      profileError = updateError;
+      if (updateError) console.error('Error updating profile:', updateError);
+      console.log('Updated profile:', updatedProfile);
+    } else {
+      // Create new profile
+      const { data: profile, error: upsertError } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            user_id: data.user.id,
+            username: capturedUsername, // should be "Glagol"
+            username_lower: capturedUsername.toLowerCase(), // "glagol"
+            display_name: capturedUsername, // "Glagol"
+            avatar_color: avatarColor,
+            status: 'invisible' as const,
+          },
+          { onConflict: 'user_id' }
+        )
+        .select()
+        .single();
+      
+      profileError = upsertError;
+      if (upsertError) console.error(upsertError);
+      console.log('🔍 Profile upsert result:', profile);
+    }
+    
     console.log("=== END DEBUGGING ===");
 
     if (profileError) {

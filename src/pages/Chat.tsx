@@ -647,26 +647,14 @@ export default function Chat() {
             {friendList.map((f: any) => (
               <button key={f.user_id} onClick={() => { openDmWithFriend(f.user_id); }}
                 className="w-full text-left flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-accent transition-colors">
-                <div 
-                  className="relative cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/profile/${f.user_id}`);
-                  }}
-                >
+                <div className="relative">
                   {avatarFor(f.display_name || f.username, f.avatar_color)}
                   <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card ${
                     f.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
                   } transition-colors`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div 
-                    className="text-sm text-foreground truncate cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/profile/${f.user_id}`);
-                    }}
-                  >
+                  <div className="text-sm text-foreground truncate">
                     {f.display_name || f.username}
                   </div>
                   <div className="text-xs text-muted-foreground truncate">@{f.username}</div>

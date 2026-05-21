@@ -7,7 +7,7 @@ import {
   Home, Compass, MessageCircle, User, Settings, Search,
   ChevronDown, Circle, Moon, MinusCircle, EyeOff, Bell, Mail,
   ShoppingBag, Menu, X, UserPlus, Sparkles,
-  Code2, Shield, Activity, PhoneCall, Mic, MicOff, LogOut,
+  Code2, Shield, Activity, PhoneCall, Mic, MicOff, LogOut, Music,
 } from 'lucide-react';
 import RazeHubLogo from '@/components/RazeHubLogo';
 
@@ -205,6 +205,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { label: t('nav.discover'), path: '/discover', icon: Compass },
     { label: t('nav.chat'), path: '/chat', icon: MessageCircle },
     { label: 'Marketplace', path: '/marketplace', icon: ShoppingBag },
+    { label: 'Music', path: '/music', icon: Music },
     { label: t('nav.mailbox'), path: '/mailbox', icon: Mail },
     { label: t('nav.profile'), path: '/profile', icon: User },
     { label: t('nav.settings'), path: '/settings', icon: Settings },

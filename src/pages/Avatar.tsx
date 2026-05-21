@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,91 +14,133 @@ import {
   Eye, EyeOff, RefreshCw, Save, Trash2, Crown, Shirt, Watch
 } from 'lucide-react';
 
-// Mock data for avatar items
-const AVATAR_ITEMS = [
+// Mock marketplace items (same as in Marketplace.tsx and Inventory.tsx)
+const MOCK_ITEMS = [
   {
     id: 1,
-    name: 'Cyber Avatar',
-    category: 'avatars',
-    equipped: true,
-    equippedColor: '#00D4FF',
-    colors: ['#00D4FF', '#7C3AED', '#10B981'],
-    description: 'A futuristic cyber-themed avatar with neon accents and digital aesthetics.',
+    name: 'Cyber Avatar Skin',
+    category: 'avatar-skins',
+    subcategory: 'all',
+    price: 499,
+    currency: 'RZ',
+    description: 'A futuristic cyber-themed avatar skin with neon accents and digital aesthetics.',
     image: 'bg-gradient-to-br from-cyan-500 to-blue-600',
+    publisher: 'RazeStudio',
+    createdAt: '2024-01-15',
+    type: 'Avatar Skin',
     equipLocation: 'Avatar Body',
-    purchased: true,
+    colors: ['#00D4FF', '#7C3AED', '#10B981'],
+    featured: true,
+    rating: 4.8,
+    reviews: 234,
   },
   {
     id: 2,
     name: 'Golden Crown',
     category: 'accessories',
     subcategory: 'hat',
-    equipped: false,
-    equippedColor: '#FFD700',
-    colors: ['#FFD700', '#C0C0C0', '#CD7F32'],
+    price: 299,
+    currency: 'RZ',
     description: 'A majestic golden crown accessory for your avatar.',
     image: 'bg-gradient-to-br from-yellow-400 to-amber-600',
+    publisher: 'RoyalAssets',
+    createdAt: '2024-02-20',
+    type: 'Accessory',
     equipLocation: 'Head',
+    colors: ['#FFD700', '#C0C0C0', '#CD7F32'],
+    featured: true,
+    rating: 4.9,
+    reviews: 567,
   },
   {
     id: 3,
     name: 'Cool Sunglasses',
     category: 'accessories',
     subcategory: 'face',
-    equipped: false,
-    equippedColor: '#111827',
-    colors: ['#111827', '#1F2937', '#374151'],
+    price: 249,
+    currency: 'RZ',
     description: 'Stylish sunglasses to protect your avatar\'s eyes.',
     image: 'bg-gradient-to-br from-gray-800 to-black',
+    publisher: 'ShadeShop',
+    createdAt: '2024-02-15',
+    type: 'Accessory',
     equipLocation: 'Face',
+    colors: ['#111827', '#1F2937', '#374151'],
+    featured: false,
+    rating: 4.6,
+    reviews: 289,
   },
   {
     id: 4,
     name: 'Spiky Hair',
     category: 'accessories',
     subcategory: 'hair',
-    equipped: false,
-    equippedColor: '#2563EB',
-    colors: ['#2563EB', '#7C3AED', '#9333EA'],
+    price: 179,
+    currency: 'RZ',
     description: 'Cool spiky hair style for your avatar.',
     image: 'bg-gradient-to-br from-blue-600 to-purple-600',
+    publisher: 'HairStudio',
+    createdAt: '2024-02-25',
+    type: 'Accessory',
     equipLocation: 'Head',
+    colors: ['#2563EB', '#7C3AED', '#9333EA'],
+    featured: false,
+    rating: 4.4,
+    reviews: 167,
   },
   {
     id: 5,
     name: 'Classic T-Shirt',
     category: 'clothing',
     subcategory: 't-shirt',
-    equipped: false,
-    equippedColor: '#6B7280',
-    colors: ['#6B7280', '#4B5563', '#374151'],
+    price: 199,
+    currency: 'RZ',
     description: 'A comfortable classic t-shirt for everyday wear.',
     image: 'bg-gradient-to-br from-gray-400 to-gray-600',
+    publisher: 'BasicWear',
+    createdAt: '2024-01-10',
+    type: 'Clothing',
     equipLocation: 'Torso',
+    colors: ['#6B7280', '#4B5563', '#374151'],
+    featured: false,
+    rating: 4.2,
+    reviews: 156,
   },
   {
     id: 6,
     name: 'Denim Jeans',
     category: 'clothing',
     subcategory: 'pants',
-    equipped: false,
-    equippedColor: '#1D4ED8',
-    colors: ['#1D4ED8', '#1E3A8A', '#1E40AF'],
+    price: 299,
+    currency: 'RZ',
     description: 'Classic denim jeans that never go out of style.',
     image: 'bg-gradient-to-br from-blue-700 to-blue-900',
+    publisher: 'DenimCo',
+    createdAt: '2024-01-18',
+    type: 'Clothing',
     equipLocation: 'Legs',
+    colors: ['#1D4ED8', '#1E3A8A', '#1E40AF'],
+    featured: false,
+    rating: 4.5,
+    reviews: 234,
   },
   {
     id: 7,
     name: 'Sport Shoes',
     category: 'clothing',
     subcategory: 'shoes',
-    equipped: false,
-    equippedColor: '#EF4444',
-    colors: ['#EF4444', '#DC2626', '#B91C1C'],
+    price: 249,
+    currency: 'RZ',
     description: 'Comfortable sport shoes for active avatars.',
     image: 'bg-gradient-to-br from-red-500 to-red-700',
+    publisher: 'SportGear',
+    createdAt: '2024-02-12',
+    type: 'Clothing',
     equipLocation: 'Feet',
+    colors: ['#EF4444', '#DC2626', '#B91C1C'],
+    featured: false,
+    rating: 4.6,
+    reviews: 201,
   },
 ];
 
@@ -131,33 +173,59 @@ export default function Avatar() {
   const { profile } = useAuth();
   const { toast } = useToast();
 
-  const [selectedCategory, setSelectedCategory] = useState('avatars');
+  const [selectedCategory, setSelectedCategory] = useState('avatar-skins');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<typeof AVATAR_ITEMS[0] | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [savedAvatars, setSavedAvatars] = useState<Array<{ id: string; name: string; items: any[]; createdAt: string }>>([]);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [avatarName, setAvatarName] = useState('');
   const [avatarView, setAvatarView] = useState<'purchased' | 'saved'>('purchased');
-
-  // Filter items for selected category and subcategory
-  const filteredItems = AVATAR_ITEMS.filter(item => {
-    if (item.category !== selectedCategory) return false;
-    if (selectedSubcategory && item.subcategory !== selectedSubcategory) return false;
-    return true;
+  
+  // Load inventory from localStorage
+  const [inventoryItemIds, setInventoryItemIds] = useState<number[]>(() => {
+    const saved = localStorage.getItem('marketplace-inventory');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+  const [equippedItems, setEquippedItems] = useState<Record<number, { color: string }>>(() => {
+    const saved = localStorage.getItem('marketplace-equipped');
+    return saved ? JSON.parse(saved) : {};
   });
 
-  const equipItem = (item: typeof AVATAR_ITEMS[0], color: string) => {
+  // Load inventory items from IDs
+  useEffect(() => {
+    const items = inventoryItemIds.map(id => MOCK_ITEMS.find(item => item.id === id)).filter(Boolean);
+    setInventoryItems(items);
+  }, [inventoryItemIds]);
+
+  // Filter items for selected category and subcategory
+  const filteredItems = inventoryItems.filter(item => {
+    if (selectedCategory === 'avatars' && item.category !== 'avatar-skins') return false;
+    if (selectedCategory === 'accessories' && item.category !== 'accessories') return false;
+    if (selectedCategory === 'clothing' && item.category !== 'clothing') return false;
+    if (selectedSubcategory && item.subcategory !== selectedSubcategory) return false;
+    return true;
+  }).map(item => ({
+    ...item,
+    equipped: equippedItems[item.id] !== undefined,
+    equippedColor: equippedItems[item.id]?.color || item.colors[0],
+  }));
+
+  const equipItem = (item: any, color: string) => {
     // Unequip other items in the same slot
-    AVATAR_ITEMS.forEach(i => {
-      if (i.equipLocation === item.equipLocation) {
-        i.equipped = false;
+    const newEquipped = { ...equippedItems };
+    Object.keys(newEquipped).forEach(key => {
+      const equippedItem = MOCK_ITEMS.find(i => i.id === parseInt(key));
+      if (equippedItem && equippedItem.equipLocation === item.equipLocation) {
+        delete newEquipped[parseInt(key)];
       }
     });
     
     // Equip the new item
-    item.equipped = true;
-    item.equippedColor = color;
+    newEquipped[item.id] = { color };
+    setEquippedItems(newEquipped);
+    localStorage.setItem('marketplace-equipped', JSON.stringify(newEquipped));
     
     toast({
       title: 'Item Equipped',
@@ -168,15 +236,18 @@ export default function Avatar() {
     setSelectedColor('');
   };
 
-  const unequipItem = (item: typeof AVATAR_ITEMS[0]) => {
-    item.equipped = false;
+  const unequipItem = (item: any) => {
+    const newEquipped = { ...equippedItems };
+    delete newEquipped[item.id];
+    setEquippedItems(newEquipped);
+    localStorage.setItem('marketplace-equipped', JSON.stringify(newEquipped));
     toast({
       title: 'Item Unequipped',
       description: `${item.name} has been unequipped`,
     });
   };
 
-  const openItemDetail = (item: typeof AVATAR_ITEMS[0]) => {
+  const openItemDetail = (item: any) => {
     setSelectedItem(item);
     setSelectedColor(item.equippedColor || item.colors[0]);
   };
@@ -192,10 +263,10 @@ export default function Avatar() {
       return;
     }
 
-    const equippedItems = AVATAR_ITEMS.filter(item => item.equipped).map(item => ({
+    const equippedItems = inventoryItems.filter(item => equippedItems[item.id] !== undefined).map(item => ({
       id: item.id,
       name: item.name,
-      equippedColor: item.equippedColor,
+      equippedColor: equippedItems[item.id].color,
     }));
 
     const newAvatar = {
@@ -216,18 +287,19 @@ export default function Avatar() {
     if (!avatar) return;
 
     // Unequip all items
-    AVATAR_ITEMS.forEach(item => {
-      item.equipped = false;
-    });
+    const newEquipped = {};
+    setEquippedItems(newEquipped);
+    localStorage.setItem('marketplace-equipped', JSON.stringify(newEquipped));
 
     // Equip items from saved avatar
     avatar.items.forEach(savedItem => {
-      const item = AVATAR_ITEMS.find(i => i.id === savedItem.id);
+      const item = MOCK_ITEMS.find(i => i.id === savedItem.id);
       if (item) {
-        item.equipped = true;
-        item.equippedColor = savedItem.equippedColor;
+        newEquipped[item.id] = { color: savedItem.equippedColor };
       }
     });
+    setEquippedItems(newEquipped);
+    localStorage.setItem('marketplace-equipped', JSON.stringify(newEquipped));
 
     toast({ title: 'Avatar Loaded', description: `"${avatar.name}" has been applied` });
   };
