@@ -72,6 +72,7 @@ const HorizontalScroller = forwardRef<HTMLDivElement, HorizontalScrollerProps>(
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onClickCapture={handleClick}
+          style={{ touchAction: 'pan-y pan-x' }}
         >
           {children}
         </div>
