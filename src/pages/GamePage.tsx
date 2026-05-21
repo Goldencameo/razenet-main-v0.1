@@ -821,7 +821,9 @@ export default function GamePage() {
 
   if (!game) return <div className="p-6 text-muted-foreground">Loading...</div>;
 
-  const tags = game.tags || [];
+  // Add default demo tags if game doesn't have tags
+  const defaultTags = ['Action', 'Multiplayer', 'Demo'];
+  const tags = game.tags && game.tags.length > 0 ? game.tags : defaultTags;
   // Use only colored gradients, no images
   const images = [0, 1, 2].map((i) => gradientFor(game.name, i));
   const safeIndex = ((imageIndex % images.length) + images.length) % images.length;

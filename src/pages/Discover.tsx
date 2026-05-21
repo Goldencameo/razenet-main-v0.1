@@ -101,10 +101,10 @@ export default function Discover() {
   const PREMIUM_AFTER_SECTION_INDEX = 3; // after 4th section
 
   const AgeCheckAd = () => (
-    <div className="mb-8 bg-card border border-border rounded-xl p-6 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div className="mb-8 bg-card border border-border rounded-xl p-4 sm:p-6 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center shrink-0">
             <Shield className="h-6 w-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
@@ -117,6 +117,7 @@ export default function Discover() {
             variant="default"
             size="sm"
             onClick={() => navigate('/settings?tab=age-check')}
+            className="flex-1 sm:flex-none"
           >
             {t('discover.ageCheckLetsDoIt')}
           </Button>
@@ -124,6 +125,7 @@ export default function Discover() {
             variant="ghost"
             size="sm"
             onClick={() => setShowAgeCheckAd(false)}
+            className="flex-1 sm:flex-none"
           >
             {t('discover.ageCheckRemindLater')}
           </Button>
@@ -133,10 +135,10 @@ export default function Discover() {
   );
 
   const PremiumAd = () => (
-    <div className="mb-8 bg-card border border-border rounded-xl p-6 shadow-sm">
-      <div className="flex items-center justify-between">
+    <div className="mb-8 bg-card border border-border rounded-xl p-4 sm:p-6 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center shrink-0">
             <Crown className="h-6 w-6 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
@@ -151,6 +153,7 @@ export default function Discover() {
           variant="default"
           size="sm"
           onClick={() => navigate('/settings?tab=billing')}
+          className="flex-1 sm:flex-none"
         >
           {t('discover.premiumUpgrade')}
         </Button>
@@ -159,7 +162,7 @@ export default function Discover() {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground">{t('discover.title')}</h1>
         <p className="text-muted-foreground mt-1">{t('discover.subtitle')}</p>
@@ -193,7 +196,7 @@ export default function Discover() {
             <HorizontalScroller>
               {games?.map((game) => (
                 <div key={game.id} className="flex-shrink-0 snap-start w-[260px] sm:w-[300px]">
-                  <GameCard game={game} variant="rectangle" rating={game.rating} reviewCount={game.reviewCount} />
+                  <GameCard game={game} variant="rectangle" rating={game.rating} reviewCount={game.reviewCount} showDemoTag={true} />
                 </div>
               ))}
             </HorizontalScroller>

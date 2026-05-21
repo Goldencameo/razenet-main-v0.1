@@ -686,8 +686,11 @@ export default function Marketplace() {
               >
                 <div className="p-3 space-y-3">
                   <div className={`aspect-square ${item.image} rounded-lg relative`}>
+                    <Badge className="absolute top-2 left-2 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      DEMO
+                    </Badge>
                     {item.featured && (
-                      <Badge className="absolute top-2 left-2 bg-yellow-500 text-white text-xs font-medium px-2 py-1">
+                      <Badge className="absolute top-2 right-2 bg-yellow-500 text-white text-xs font-medium px-2 py-1">
                         Featured
                       </Badge>
                     )}
@@ -726,8 +729,11 @@ export default function Marketplace() {
               >
                 <div className="flex gap-4 p-4">
                   <div className={`aspect-square w-24 ${item.image} rounded-lg flex-shrink-0 relative`}>
+                    <Badge className="absolute top-1 left-1 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      DEMO
+                    </Badge>
                     {item.featured && (
-                      <Badge className="absolute top-1 left-1 bg-yellow-500 text-white text-xs">
+                      <Badge className="absolute top-1 right-1 bg-yellow-500 text-white text-xs">
                         Featured
                       </Badge>
                     )}

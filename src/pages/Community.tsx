@@ -411,8 +411,13 @@ export default function Community() {
         <>
           {/* Community Info */}
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-24 h-24 rounded-lg flex items-center justify-center text-3xl font-bold shrink-0" style={{ backgroundColor: community.avatarColor, color: 'white' }}>
-              {community.name[0]?.toUpperCase() || 'S'}
+            <div className="relative">
+              <div className="w-24 h-24 rounded-lg flex items-center justify-center text-3xl font-bold shrink-0" style={{ backgroundColor: community.avatarColor, color: 'white' }}>
+                {community.name[0]?.toUpperCase() || 'S'}
+              </div>
+              <div className="absolute -top-2 -right-2 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                DEMO
+              </div>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground">{community.name}</h1>
@@ -497,7 +502,10 @@ export default function Community() {
               <div className="flex gap-4 overflow-x-auto pb-2">
                 {games.map((game) => (
                   <div key={game.id} className="group cursor-pointer shrink-0" onClick={() => navigate(`/game/${game.id}`)}>
-                    <div className="aspect-square w-40 h-40 bg-muted border border-border rounded-lg overflow-hidden mb-2">
+                    <div className="aspect-square w-40 h-40 bg-muted border border-border rounded-lg overflow-hidden mb-2 relative">
+                      <div className="absolute top-2 left-2 z-10 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                        DEMO
+                      </div>
                       <div className="w-full h-full flex items-center justify-center text-sm font-semibold transition-transform duration-300 group-hover:scale-110"
                         style={{
                           background: getGameGradient(game.name),

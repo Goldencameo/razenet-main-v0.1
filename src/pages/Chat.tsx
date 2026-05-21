@@ -273,11 +273,17 @@ export default function Chat() {
     const channel = supabase
       .channel(`messages-${activeId}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${activeId}` },
+        (payload) => {
+          qc.invalidateQueries({ queryKey: ['messages', activeId] });
+          qc.invalidateQueries({ queryKey: ['conversations', profile?.user_id] });
+        },
+      )
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `conversation_id=eq.${activeId}` },
         () => qc.invalidateQueries({ queryKey: ['messages', activeId] }),
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [activeId, qc]);
+  }, [activeId, qc, profile?.user_id]);
 
   // Realtime: invalidate conversations on any new convo or membership change
   useEffect(() => {
@@ -288,9 +294,22 @@ export default function Chat() {
         () => qc.invalidateQueries({ queryKey: ['conversations', profile.user_id] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' },
         () => qc.invalidateQueries({ queryKey: ['conversations', profile.user_id] }))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' },
+        (payload) => {
+          // Check if this message is in any of the user's conversations
+          const msgConvId = payload.new.conversation_id;
+          conversations?.forEach((conv: any) => {
+            if (conv.id === msgConvId) {
+              qc.invalidateQueries({ queryKey: ['conversations', profile.user_id] });
+              if (activeId === msgConvId) {
+                qc.invalidateQueries({ queryKey: ['messages', activeId] });
+              }
+            }
+          });
+        })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [profile, qc]);
+  }, [profile, qc, conversations, activeId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

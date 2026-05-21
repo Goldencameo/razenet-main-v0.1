@@ -11,6 +11,7 @@ interface GameCardProps {
   hoursPlayed?: number;
   rating?: number;
   reviewCount?: number;
+  showDemoTag?: boolean;
 }
 
 function getGameGradient(name: string): string {
@@ -27,7 +28,7 @@ function gradientFor(name: string, salt: number): string {
   return `linear-gradient(135deg, hsl(${hue1}, 60%, 40%), hsl(${hue2}, 50%, 50%))`;
 }
 
-const GameCard = forwardRef<HTMLAnchorElement, GameCardProps>(({ game, variant, hoursPlayed, rating, reviewCount }, ref) => {
+const GameCard = forwardRef<HTMLAnchorElement, GameCardProps>(({ game, variant, hoursPlayed, rating, reviewCount, showDemoTag = false }, ref) => {
   const isSquare = variant === 'square';
 
   return (
@@ -37,6 +38,11 @@ const GameCard = forwardRef<HTMLAnchorElement, GameCardProps>(({ game, variant, 
           isSquare ? 'aspect-square' : 'aspect-video'
         } outline-none`}
       >
+        {showDemoTag && (
+          <div className="absolute top-2 left-2 z-10 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+            DEMO
+          </div>
+        )}
         <div
             className="absolute inset-0 flex items-center justify-center text-sm font-semibold transition-transform duration-300 group-hover/card:scale-110"
             style={{
