@@ -172,6 +172,7 @@ export default function Signup() {
 
     if (profileError) {
       console.error('❌ Profile insert error:', profileError);
+      console.error('Error details:', JSON.stringify(profileError, null, 2));
       setError('Could not create profile. ' + (profileError.message || 'Please try again.'));
       // Don't sign out - let user stay logged in but show error
       setLoading(false);
