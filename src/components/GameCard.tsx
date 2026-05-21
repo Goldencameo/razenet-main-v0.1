@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Users } from 'lucide-react';
 import type { Tables } from '@/integrations/supabase/types';
@@ -30,9 +30,43 @@ function gradientFor(name: string, salt: number): string {
 
 const GameCard = forwardRef<HTMLAnchorElement, GameCardProps>(({ game, variant, hoursPlayed, rating, reviewCount, showDemoTag = false }, ref) => {
   const isSquare = variant === 'square';
+  const touchStartRef = useRef<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientY;
+    setIsDragging(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartRef.current === null) return;
+    const touchY = e.touches[0].clientY;
+    const diff = Math.abs(touchY - touchStartRef.current);
+    if (diff > 10) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartRef.current = null;
+    setTimeout(() => setIsDragging(false), 100);
+  };
 
   return (
-    <Link to={`/game/${game.id}`} ref={ref} className="group/card block" style={{ WebkitTapHighlightColor: 'transparent' }}>
+    <Link
+      to={`/game/${game.id}`}
+      ref={ref}
+      className="group/card block"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onClick={(e) => {
+        if (isDragging) {
+          e.preventDefault();
+        }
+      }}
+    >
       <div
         className={`relative rounded-xl overflow-hidden ${
           isSquare ? 'aspect-square' : 'aspect-video'

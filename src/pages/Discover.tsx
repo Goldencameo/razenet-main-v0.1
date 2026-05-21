@@ -136,14 +136,14 @@ export default function Discover() {
 
   const PremiumAd = () => (
     <div className="mb-8 bg-card border border-border rounded-xl p-4 sm:p-6 shadow-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center shrink-0">
-            <Crown className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+          <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center shrink-0">
+            <Crown className="h-7 w-7 sm:h-6 sm:w-6 text-amber-600 dark:text-amber-400" />
           </div>
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-foreground text-base">{t('discover.premiumTitle')}</h3>
+              <h3 className="font-semibold text-foreground text-base sm:text-base">{t('discover.premiumTitle')}</h3>
               <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">$4.99/mo</span>
             </div>
             <p className="text-muted-foreground text-sm leading-relaxed">{t('discover.premiumDesc')}</p>
@@ -151,9 +151,9 @@ export default function Discover() {
         </div>
         <Button
           variant="default"
-          size="sm"
+          size="lg"
           onClick={() => navigate('/settings?tab=billing')}
-          className="flex-1 sm:flex-none"
+          className="w-full sm:w-auto"
         >
           {t('discover.premiumUpgrade')}
         </Button>
