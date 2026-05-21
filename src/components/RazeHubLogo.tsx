@@ -16,38 +16,20 @@ export default function RazeHubLogo({ className = "", size = 'md', dark = false 
 
   return (
     <div className={`font-extrabold ${sizeClasses[size]} ${className} select-none flex items-center`}>
-      <div className="flex items-center gap-1 sm:gap-0.5">
-        {['R', 'A', 'Z', 'E'].map((letter, i) => (
-          <span
-            key={i}
-            className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
-            style={{
-              fontWeight: 400,
-              textRendering: 'optimizeLegibility',
-              WebkitFontSmoothing: 'antialiased',
-              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-            }}
-          >
-            {letter}
-          </span>
-        ))}
-      </div>
-      <div className="flex items-center gap-1 sm:gap-0.5 ml-4 sm:ml-1">
-        {['H', 'U', 'B'].map((letter, i) => (
-          <span
-            key={i}
-            className="text-foreground dark:text-white"
-            style={{
-              fontWeight: 400,
-              textRendering: 'optimizeLegibility',
-              WebkitFontSmoothing: 'antialiased',
-              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
-            }}
-          >
-            {letter}
-          </span>
-        ))}
-      </div>
+      <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent"
+        style={{
+          letterSpacing: '0.05em',
+          fontWeight: 800
+        }}>
+        RAZE
+      </span>
+      <span className="text-foreground dark:text-white ml-2 sm:ml-1"
+        style={{
+          letterSpacing: '0.05em',
+          fontWeight: 800
+        }}>
+        HUB
+      </span>
     </div>
   );
 }
