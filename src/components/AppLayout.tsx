@@ -279,8 +279,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <aside className={`${mobile ? 'w-full' : 'w-[240px] hidden md:flex'} border-r border-border flex flex-col bg-card shrink-0 h-full`}>
         <div className="p-4 pb-5">
           <div className="flex items-center justify-between">
-            <Link to="/home" className="flex items-center">
-              <RazeHubLogo size="sm" />
+            <Link to="/home" className="flex items-center min-w-0">
+              <div className="min-w-0">
+                <RazeHubLogo size="sm" />
+              </div>
             </Link>
             {mobile && (
               <button onClick={() => setMobileNavOpen(false)} className="p-1 rounded hover:bg-accent">
