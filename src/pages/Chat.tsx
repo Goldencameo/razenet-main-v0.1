@@ -423,13 +423,29 @@ export default function Chat() {
     if (!profile || !activeId || !draft.trim()) return;
     const content = draft.trim();
     setDraft('');
+
+    // Optimistically update the messages query cache
+    qc.setQueryData(['messages', activeId], (old: any) => {
+      const newMessage = {
+        id: `temp-${Date.now()}`,
+        conversation_id: activeId,
+        sender_id: profile.user_id,
+        content,
+        created_at: new Date().toISOString(),
+      };
+      return [...(old || []), newMessage];
+    });
+
     const { error } = await supabase.from('messages').insert({
       conversation_id: activeId, sender_id: profile.user_id, content,
     });
-    if (error) toast({ title: 'Failed to send', description: error.message, variant: 'destructive' });
+    if (error) {
+      toast({ title: 'Failed to send', description: error.message, variant: 'destructive' });
+      // Revert optimistic update on error
+      qc.invalidateQueries({ queryKey: ['messages', activeId] });
+    }
     // touch conversation updated_at
     await supabase.from('conversations').update({ updated_at: new Date().toISOString() }).eq('id', activeId);
-    qc.invalidateQueries({ queryKey: ['messages', activeId] });
     qc.invalidateQueries({ queryKey: ['conversations', profile.user_id] });
   };
 
