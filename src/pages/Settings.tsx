@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { validateUsername } from '@/lib/username-validation';
+import WelcomeUI from '@/components/WelcomeUI';
 
 export default function SettingsPage() {
   const { profile, signOut, refreshProfile } = useAuth();
@@ -27,6 +28,7 @@ export default function SettingsPage() {
   const { theme, setTheme, lightSub, setLightSub, darkSub, setDarkSub } = useTheme();
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showWelcomePanel, setShowWelcomePanel] = useState(false);
   const [activeSection, setActiveSection] = useState(() => {
     const fromUrl = searchParams.get('tab');
     if (fromUrl) return fromUrl;
@@ -467,7 +469,8 @@ export default function SettingsPage() {
                 <Button variant="outline" size="sm" onClick={() => {
                   localStorage.removeItem('welcome_seen');
                   localStorage.removeItem('welcome-ui-seen');
-                  toast({ title: 'Welcome panel reset', description: 'The welcome panel will appear on your next visit' });
+                  setShowWelcomePanel(true);
+                  toast({ title: 'Welcome panel reset', description: 'The welcome panel will appear now' });
                 }}>
                   Reset
                 </Button>
@@ -1748,6 +1751,12 @@ export default function SettingsPage() {
           {renderSection()}
         </div>
       </div>
+
+      <WelcomeUI
+        onComplete={() => setShowWelcomePanel(false)}
+        preAcceptRules={true}
+        forceOpen={showWelcomePanel}
+      />
     </div>
   );
 }

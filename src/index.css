@@ -89,4 +89,29 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Custom scrollbar styling - more specific and force transparent */
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3) !important;
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5) !important;
+  }
+
+  /* Firefox scrollbar - more specific */
+  * {
+    scrollbar-width: thin !important;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent !important;
+  }
 }

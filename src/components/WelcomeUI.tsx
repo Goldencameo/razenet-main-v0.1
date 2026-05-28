@@ -10,6 +10,8 @@ import { useTheme } from '@/lib/theme';
 
 interface WelcomeUIProps {
   onComplete: () => void;
+  preAcceptRules?: boolean;
+  forceOpen?: boolean;
 }
 
 const LANGUAGES: { code: Language; name: string; flag: string }[] = [
@@ -26,7 +28,7 @@ const LANGUAGES: { code: Language; name: string; flag: string }[] = [
 
 const AVATAR_COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
 
-export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
+export default function WelcomeUI({ onComplete, preAcceptRules = false, forceOpen = false }: WelcomeUIProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState<'welcome' | 'rules' | 'comfort'>('welcome');
   const [hasScrolledRules, setHasScrolledRules] = useState(false);
@@ -43,10 +45,17 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
   useEffect(() => {
     // Check if welcome UI was already shown (check both old and new keys)
     const hasSeenWelcome = localStorage.getItem('welcome_seen') || localStorage.getItem('welcome-ui-seen');
-    if (!hasSeenWelcome) {
+    if (!hasSeenWelcome || forceOpen) {
       setIsOpen(true);
     }
-  }, []);
+  }, [forceOpen]);
+
+  useEffect(() => {
+    if (preAcceptRules) {
+      setAcceptedRules(true);
+      setHasScrolledRules(true);
+    }
+  }, [preAcceptRules]);
 
   const handleComplete = () => {
     localStorage.setItem('welcome_seen', 'true');
@@ -65,7 +74,8 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
 
   const handleRulesScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.target as HTMLDivElement;
-    if (target.scrollHeight - target.scrollTop <= target.clientHeight + 10) {
+    // More strict check - must be scrolled to within 2px of the bottom
+    if (target.scrollHeight - target.scrollTop - target.clientHeight <= 2) {
       setHasScrolledRules(true);
     }
   };
@@ -82,8 +92,8 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
         }
         setIsOpen(open);
       }}>
-        <DialogContent className="max-w-3xl p-0 h-[80vh] md:h-[70vh] flex flex-col">
-          <div className="flex flex-col h-full">
+        <DialogContent className="max-w-3xl p-0 flex flex-col max-h-[90vh]">
+          <div className="flex flex-col">
             {/* Header */}
             <div className="bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4 md:p-6 border-b border-border flex-shrink-0">
               <div className="flex items-center justify-between">
@@ -118,7 +128,7 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6">
+            <div className="p-4 md:p-6 overflow-y-auto max-h-[60vh]">
               {step === 'welcome' && (
                 <div className="space-y-4 md:space-y-6">
                   <Card className="border-primary/20">
@@ -174,7 +184,7 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
                   <div
                     ref={rulesRef}
                     onScroll={handleRulesScroll}
-                    className="bg-muted/30 border border-border rounded-lg p-4 md:p-6 max-h-[350px] md:max-h-[400px] overflow-y-auto"
+                    className="bg-muted/30 border border-border rounded-lg p-4 md:p-6 max-h-[400px] overflow-y-auto"
                   >
                     <h3 className="text-base md:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                       <Scroll className="h-4 w-4 md:h-5 md:w-5" />
@@ -241,7 +251,7 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
                     </div>
                   </div>
 
-                  {!hasScrolledRules && (
+                  {!hasScrolledRules && !preAcceptRules && (
                     <p className="text-xs md:text-sm text-amber-600 dark:text-amber-400 text-center">
                       Please scroll through all rules before continuing
                     </p>
@@ -253,7 +263,7 @@ export default function WelcomeUI({ onComplete }: WelcomeUIProps) {
                       id="accept-rules"
                       checked={acceptedRules}
                       onChange={(e) => setAcceptedRules(e.target.checked)}
-                      disabled={!hasScrolledRules}
+                      disabled={!hasScrolledRules && !preAcceptRules}
                       className="w-4 h-4 md:w-5 md:h-5 rounded border-border"
                     />
                     <label htmlFor="accept-rules" className="text-xs md:text-sm text-foreground cursor-pointer">
