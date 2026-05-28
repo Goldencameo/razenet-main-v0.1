@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useI18n } from '@/lib/i18n';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Crown, ArrowRight, Clock, Sparkles, X } from 'lucide-react';
+import { Shield, Crown, ArrowRight, Clock, Sparkles, X, Music } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GameCard from '@/components/GameCard';
 import SectionWithArrows from '@/components/SectionWithArrows';
@@ -99,6 +99,7 @@ export default function Discover() {
   // Insert ads between sections
   const AD_AFTER_SECTION_INDEX = 1; // after 2nd section
   const PREMIUM_AFTER_SECTION_INDEX = 3; // after 4th section
+  const MUSIC_AFTER_SECTION_INDEX = 5; // after 6th section
 
   const AgeCheckAd = () => (
     <div className="mb-8 bg-card border border-border rounded-xl p-4 sm:p-6 shadow-sm">
@@ -161,6 +162,30 @@ export default function Discover() {
     </div>
   );
 
+  const MusicAd = () => (
+    <div className="mb-8 bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 rounded-xl p-4 sm:p-6 shadow-sm text-white">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 sm:w-12 sm:h-12 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+            <Music className="h-7 w-7 sm:h-6 sm:w-6 text-white" />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-white text-base sm:text-base mb-1">🎵 Discover Music</h3>
+            <p className="text-white/90 text-sm leading-relaxed">Explore our curated playlists and discover new artists!</p>
+          </div>
+        </div>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={() => navigate('/music')}
+          className="w-full sm:w-auto"
+        >
+          Explore Now
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="p-4 sm:p-6">
       <div className="mb-6">
@@ -176,6 +201,7 @@ export default function Discover() {
         return (
           <div key={section.key}>
           {idx === PREMIUM_AFTER_SECTION_INDEX && <PremiumAd />}
+          {idx === MUSIC_AFTER_SECTION_INDEX && <MusicAd />}
           {section.key === 'comingSoon' ? (
             <SectionWithArrows
               title={section.label}

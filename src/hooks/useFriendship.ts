@@ -72,11 +72,32 @@ export function useFriendship(otherUserId?: string) {
 
   const accept = useMutation({
     mutationFn: async (id: string) => {
+      // Get the friendship details to find the requester
+      const { data: friendship } = await supabase
+        .from('friendships')
+        .select('requester_id, addressee_id')
+        .eq('id', id)
+        .single();
+
+      if (!friendship) throw new Error('Friendship not found');
+
       const { error } = await supabase
         .from('friendships')
         .update({ status: 'accepted' })
         .eq('id', id);
       if (error) throw error;
+
+      // Create notification for the requester that their request was accepted
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: friendship.requester_id,
+          actor_id: me,
+          type: 'friend_accepted',
+          title: 'Friend Request Accepted',
+          body: 'Your friend request was accepted!',
+          link: `/profile/${me}`,
+        });
     },
     onSuccess: invalidate,
   });

@@ -61,7 +61,7 @@ export function useNotifications() {
 
 /**
  * Ensures the welcome notification exists exactly once per user.
- * Called from AuthProvider on first sign-in / first profile load.
+ * Called from Signup on first sign-in.
  */
 export async function ensureWelcomeNotification(userId: string) {
   const flagKey = `razehub.welcomeNotified.${userId}`;
@@ -82,8 +82,10 @@ export async function ensureWelcomeNotification(userId: string) {
   await supabase.from('notifications').insert({
     user_id: userId,
     type: 'system',
-    title: 'Welcome to RazeHub',
-    body: "We're glad you're here. Add friends, discover games, and dive in!",
+    title: 'Welcome to RazeHub! 🎉',
+    body: "We're thrilled to have you here! Start by adding friends, discovering games, and joining communities. Your adventure begins now!",
+    link: '/discover',
+    is_read: false,
   });
   if (typeof window !== 'undefined') localStorage.setItem(flagKey, '1');
 }

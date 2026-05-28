@@ -77,6 +77,7 @@ export default function Chat() {
     return saved;
   });
   const [search, setSearch] = useState('');
+  const [searchDebounced, setSearchDebounced] = useState('');
   const [createGroupOpen, setCreateGroupOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupMembers, setGroupMembers] = useState<string[]>([]);
@@ -90,6 +91,14 @@ export default function Chat() {
     const stored = localStorage.getItem('hidden_chats');
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounced(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Save to localStorage when activeId changes
   useEffect(() => {
@@ -156,9 +165,10 @@ export default function Chat() {
   }, []);
 
   // Fetch last message per conversation
-  const { data: conversations } = useQuery({
+  const { data: conversations, isLoading: conversationsLoading } = useQuery({
     queryKey: ['conversations', profile?.user_id],
     enabled: !!profile,
+    staleTime: 30000, // Cache for 30 seconds
     queryFn: async () => {
       const { data: memberships } = await supabase
         .from('conversation_members')
@@ -196,8 +206,8 @@ export default function Chat() {
         memMap[m.conversation_id] = memMap[m.conversation_id] || [];
         memMap[m.conversation_id].push({ ...m, profile: profMap[m.user_id] });
       });
-      // Fetch last message for each conversation
-      const lastMsgPromises = ids.map(async (cid: string) => {
+      // Fetch last message for each conversation - limit to last 20 for performance
+      const lastMsgPromises = ids.slice(0, 20).map(async (cid: string) => {
         const { data } = await supabase
           .from('messages')
           .select('content, sender_id, created_at')
@@ -254,9 +264,10 @@ export default function Chat() {
 
   useDocumentTitle(chatTitle);
 
-  const { data: messages } = useQuery({
+  const { data: messages, isLoading: messagesLoading } = useQuery({
     queryKey: ['messages', activeId],
     enabled: !!activeId,
+    staleTime: 10000, // Cache for 10 seconds
     queryFn: async () => {
       const { data } = await supabase
         .from('messages')
@@ -461,13 +472,13 @@ export default function Chat() {
   const filteredConvs = useMemo(() => {
     if (!conversations) return [];
     const visibleConvs = conversations.filter((c: any) => !hiddenChats.has(c.id));
-    if (!search) return visibleConvs;
-    const q = search.toLowerCase();
+    if (!searchDebounced) return visibleConvs;
+    const q = searchDebounced.toLowerCase();
     return visibleConvs.filter((c: any) => {
       const d = convDisplay(c);
       return d.name.toLowerCase().includes(q);
     });
-  }, [conversations, search, hiddenChats]);
+  }, [conversations, searchDebounced, hiddenChats]);
 
   const friendList = friends || [];
 
@@ -545,10 +556,15 @@ export default function Chat() {
             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">
               {t('chat.directMessages')} & {t('chat.groups')}
             </p>
-            {filteredConvs.length === 0 && (
+            {conversationsLoading && (
+              <div className="px-3 py-4 flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+              </div>
+            )}
+            {!conversationsLoading && filteredConvs.length === 0 && (
               <p className="px-3 py-4 text-xs text-muted-foreground">{t('chat.noConversations')}</p>
             )}
-            {filteredConvs.map((c: any) => {
+            {!conversationsLoading && filteredConvs.map((c: any) => {
               const d = convDisplay(c);
               const active = c.id === activeId;
               const lastMsg = c.last_message;
@@ -676,6 +692,7 @@ export default function Chat() {
             messagesEndRef={messagesEndRef}
             meId={profile?.user_id}
             onBack={goBackToList}
+            messagesLoading={messagesLoading}
           />
         )}
       </main>
@@ -683,7 +700,7 @@ export default function Chat() {
   );
 }
 
-function ChatRoom({ conv, messages, draft, setDraft, sendMessage, leaveConv, transferHost, toggleNotifications, messagesEndRef, meId, onBack }: any) {
+function ChatRoom({ conv, messages, draft, setDraft, sendMessage, leaveConv, transferHost, toggleNotifications, messagesEndRef, meId, onBack, messagesLoading }: any) {
   const { t } = useI18n();
   const { toast } = useToast();
   const { addActiveCall, joinCall, activeCalls } = useActivity();
@@ -1061,10 +1078,15 @@ function ChatRoom({ conv, messages, draft, setDraft, sendMessage, leaveConv, tra
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-0.5 bg-background">
-        {messages.length === 0 && (
+        {messagesLoading && (
+          <div className="flex items-center justify-center py-8">
+            <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+          </div>
+        )}
+        {!messagesLoading && messages.length === 0 && (
           <p className="text-center text-sm text-muted-foreground py-8">No messages yet — say hi 👋</p>
         )}
-        {messages.map((m: any, idx: number) => {
+        {!messagesLoading && messages.map((m: any, idx: number) => {
           const sender = profileMap[m.sender_id];
           const isOwn = m.sender_id === meId;
           const isGroup = conv.type === 'group';

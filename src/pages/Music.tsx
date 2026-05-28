@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMusic } from '@/contexts/MusicContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Slider } from '@/components/ui/slider';
-import { 
-  ArrowLeft, Music as MusicIcon, Search, Plus, Heart, List, Play, Pause, 
-  SkipBack, SkipForward, Volume2, Home, Compass, Heart as HeartFilled,
-  Clock, MoreHorizontal, Shuffle, Repeat
+import { Badge } from '@/components/ui/badge';
+import {
+  ArrowLeft, Music as MusicIcon, Search, Plus, Heart, List, Play,
+  Home, Compass, Heart as HeartFilled, Clock, Users, MoreHorizontal
 } from 'lucide-react';
 
 // Mock music data
@@ -25,6 +23,8 @@ const MOCK_MUSIC = [
     genre: 'Electronic',
     cover: 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400',
     featured: true,
+    plays: '2.5M',
+    audioUrl: '', // Add your audio file path here, e.g., '/music/cyber-dreams.mp3'
   },
   {
     id: 2,
@@ -35,6 +35,8 @@ const MOCK_MUSIC = [
     genre: 'Synthwave',
     cover: 'bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-400',
     featured: true,
+    plays: '1.8M',
+    audioUrl: '',
   },
   {
     id: 3,
@@ -45,6 +47,8 @@ const MOCK_MUSIC = [
     genre: 'Ambient',
     cover: 'bg-gradient-to-br from-orange-600 via-red-500 to-pink-500',
     featured: false,
+    plays: '890K',
+    audioUrl: '',
   },
   {
     id: 4,
@@ -55,6 +59,8 @@ const MOCK_MUSIC = [
     genre: 'Synthwave',
     cover: 'bg-gradient-to-br from-indigo-600 via-purple-500 to-pink-500',
     featured: true,
+    plays: '3.2M',
+    audioUrl: '',
   },
   {
     id: 5,
@@ -65,6 +71,8 @@ const MOCK_MUSIC = [
     genre: 'Electronic',
     cover: 'bg-gradient-to-br from-green-600 via-emerald-500 to-teal-500',
     featured: false,
+    plays: '1.1M',
+    audioUrl: '',
   },
   {
     id: 6,
@@ -75,6 +83,8 @@ const MOCK_MUSIC = [
     genre: 'Ambient',
     cover: 'bg-gradient-to-br from-yellow-500 via-orange-500 to-red-500',
     featured: false,
+    plays: '750K',
+    audioUrl: '',
   },
   {
     id: 7,
@@ -85,6 +95,8 @@ const MOCK_MUSIC = [
     genre: 'Electronic',
     cover: 'bg-gradient-to-br from-pink-600 via-rose-500 to-red-500',
     featured: true,
+    plays: '2.1M',
+    audioUrl: '',
   },
   {
     id: 8,
@@ -95,8 +107,148 @@ const MOCK_MUSIC = [
     genre: 'Ambient',
     cover: 'bg-gradient-to-br from-violet-600 via-purple-500 to-indigo-500',
     featured: false,
+    plays: '920K',
+    audioUrl: '',
+  },
+  {
+    id: 9,
+    title: 'Thunder Strike',
+    artist: 'Bass Heavy',
+    album: 'Drop Zone',
+    duration: '3:42',
+    genre: 'Dubstep',
+    cover: 'bg-gradient-to-br from-slate-600 via-gray-500 to-zinc-500',
+    featured: true,
+    plays: '4.5M',
+    audioUrl: '',
+  },
+  {
+    id: 10,
+    title: 'Ocean Waves',
+    artist: 'Chill Vibes',
+    album: 'Relaxation',
+    duration: '5:15',
+    genre: 'Lo-Fi',
+    cover: 'bg-gradient-to-br from-cyan-600 via-blue-500 to-indigo-500',
+    featured: false,
+    plays: '1.5M',
+    audioUrl: '',
+  },
+  {
+    id: 11,
+    title: 'Fire Dance',
+    artist: 'Inferno',
+    album: 'Blazing Tracks',
+    duration: '3:30',
+    genre: 'EDM',
+    cover: 'bg-gradient-to-br from-red-600 via-orange-500 to-yellow-500',
+    featured: true,
+    plays: '3.8M',
+    audioUrl: '',
+  },
+  {
+    id: 12,
+    title: 'Moonlight Sonata',
+    artist: 'Classical Dreams',
+    album: 'Timeless',
+    duration: '6:45',
+    genre: 'Classical',
+    cover: 'bg-gradient-to-br from-gray-700 via-slate-600 to-zinc-600',
+    featured: false,
+    plays: '2.2M',
+    audioUrl: '',
+  },
+  {
+    id: 13,
+    title: 'Urban Jungle',
+    artist: 'Street Beats',
+    album: 'City Life',
+    duration: '3:55',
+    genre: 'Hip-Hop',
+    cover: 'bg-gradient-to-br from-amber-600 via-yellow-500 to-lime-500',
+    featured: true,
+    plays: '5.1M',
+    audioUrl: '',
+  },
+  {
+    id: 14,
+    title: 'Forest Echo',
+    artist: 'Nature Sounds',
+    album: 'Wilderness',
+    duration: '4:20',
+    genre: 'Ambient',
+    cover: 'bg-gradient-to-br from-emerald-600 via-green-500 to-teal-500',
+    featured: false,
+    plays: '680K',
+    audioUrl: '',
+  },
+  {
+    id: 15,
+    title: 'Rock Anthem',
+    artist: 'The Rebels',
+    album: 'Revolution',
+    duration: '4:10',
+    genre: 'Rock',
+    cover: 'bg-gradient-to-br from-red-700 via-orange-600 to-amber-600',
+    featured: true,
+    plays: '6.3M',
+    audioUrl: '',
+  },
+  {
+    id: 16,
+    title: 'Jazz Cafe',
+    artist: 'Smooth Trio',
+    album: 'Evening Sessions',
+    duration: '5:30',
+    genre: 'Jazz',
+    cover: 'bg-gradient-to-br from-yellow-600 via-amber-500 to-orange-500',
+    featured: false,
+    plays: '1.3M',
+    audioUrl: '',
+  },
+  // ADD YOUR 3 WORKING TRACKS HERE:
+  // Track 1: Relaxing but moving (middle speed)
+  {
+    id: 100,
+    title: 'Gentle Flow',
+    artist: 'RazeHub',
+    album: 'Relaxation Collection',
+    duration: '4:30',
+    genre: 'Ambient',
+    cover: 'bg-gradient-to-br from-teal-600 via-cyan-500 to-blue-500',
+    featured: true,
+    plays: '100K',
+    audioUrl: '/music/gentle-flow.mp3', // Replace with your actual file
+  },
+  // Track 2: Disco-like but relaxing (middle speed)
+  {
+    id: 101,
+    title: 'Groovy Sunset',
+    artist: 'RazeHub',
+    album: 'Chill Disco',
+    duration: '3:45',
+    genre: 'Lo-Fi',
+    cover: 'bg-gradient-to-br from-purple-600 via-pink-500 to-rose-500',
+    featured: true,
+    plays: '85K',
+    audioUrl: '/music/groovy-sunset.mp3', // Replace with your actual file
+  },
+  // Track 3: Speedy
+  {
+    id: 102,
+    title: 'Turbo Rush',
+    artist: 'RazeHub',
+    album: 'High Energy',
+    duration: '2:50',
+    genre: 'EDM',
+    cover: 'bg-gradient-to-br from-red-600 via-orange-500 to-yellow-500',
+    featured: true,
+    plays: '120K',
+    audioUrl: '/music/turbo-rush.mp3', // Replace with your actual file
   },
 ];
+
+const GENRES = ['Electronic', 'Synthwave', 'Ambient', 'Dubstep', 'Lo-Fi', 'EDM', 'Classical', 'Hip-Hop', 'Rock', 'Jazz'];
 
 // Mock friends playlists
 const MOCK_FRIENDS_PLAYLISTS = [
@@ -122,13 +274,18 @@ export default function Music() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
+  const {
+    currentSong,
+    isPlaying,
+    favorites,
+    setCurrentSong,
+    setIsPlaying,
+    toggleFavorite,
+  } = useMusic();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSection, setSelectedSection] = useState('home');
-  const [favorites, setFavorites] = useState<number[]>(() => {
-    const saved = localStorage.getItem('music-favorites');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [selectedGenre, setSelectedGenre] = useState<string | null>(null);
   const [customPlaylists, setCustomPlaylists] = useState<Array<{ id: string; name: string; songs: number[]; createdAt: string }>>(() => {
     const saved = localStorage.getItem('music-playlists');
     return saved ? JSON.parse(saved) : [];
@@ -138,32 +295,32 @@ export default function Music() {
   const [selectedPlaylist, setSelectedPlaylist] = useState<any>(null);
   const [addToPlaylistOpen, setAddToPlaylistOpen] = useState(false);
   const [songToAdd, setSongToAdd] = useState<any>(null);
-  
-  // Player state
-  const [currentSong, setCurrentSong] = useState<any>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState([30]);
-  const [volume, setVolume] = useState([70]);
 
-  // Filter music based on search
+  // Filter music based on search and genre
   const filteredMusic = MOCK_MUSIC.filter(music =>
     music.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     music.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
     music.genre.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ).filter(music => !selectedGenre || music.genre === selectedGenre);
 
   const favoriteSongs = MOCK_MUSIC.filter(music => favorites.includes(music.id));
 
-  const toggleFavorite = (musicId: number) => {
-    const newFavorites = favorites.includes(musicId)
-      ? favorites.filter(id => id !== musicId)
-      : [...favorites, musicId];
-    setFavorites(newFavorites);
-    localStorage.setItem('music-favorites', JSON.stringify(newFavorites));
+  // Top charts (sorted by plays)
+  const topCharts = [...MOCK_MUSIC].sort((a, b) => {
+    const playsA = parseFloat(a.plays) || 0;
+    const playsB = parseFloat(b.plays) || 0;
+    return playsB - playsA;
+  }).slice(0, 10);
+
+  // New releases (featured songs)
+  const newReleases = MOCK_MUSIC.filter(m => m.featured);
+
+  const toggleFavoriteLocal = (musicId: number) => {
+    toggleFavorite(musicId);
     toast({
       title: favorites.includes(musicId) ? 'Removed from Favorites' : 'Added to Favorites',
-      description: favorites.includes(musicId) 
-        ? 'Song removed from your favorites' 
+      description: favorites.includes(musicId)
+        ? 'Song removed from your favorites'
         : 'Song added to your favorites',
     });
   };
@@ -241,13 +398,42 @@ export default function Music() {
       case 'home':
         return (
           <div className="space-y-8">
+            {/* Genre Filter */}
+            <section>
+              <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
+                <button
+                  onClick={() => setSelectedGenre(null)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                    selectedGenre === null
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  All
+                </button>
+                {GENRES.map(genre => (
+                  <button
+                    key={genre}
+                    onClick={() => setSelectedGenre(genre)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                      selectedGenre === genre
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {genre}
+                  </button>
+                ))}
+              </div>
+            </section>
+
             {/* Featured Section */}
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">Featured</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {MOCK_MUSIC.filter(m => m.featured).map(music => (
-                  <div 
-                    key={music.id} 
+                {newReleases.map(music => (
+                  <div
+                    key={music.id}
                     className="group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
@@ -263,13 +449,35 @@ export default function Music() {
               </div>
             </section>
 
+            {/* Top Charts */}
+            <section>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Top Charts</h2>
+              <div className="space-y-2">
+                {topCharts.map((music, index) => (
+                  <div
+                    key={music.id}
+                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    onClick={() => playSong(music)}
+                  >
+                    <span className="w-8 text-center font-bold text-muted-foreground">{index + 1}</span>
+                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
+                      <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground">{music.plays}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {/* Made For You */}
             <section>
               <h2 className="text-2xl font-bold text-foreground mb-4">Made For You</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {MOCK_MUSIC.slice(0, 5).map(music => (
-                  <div 
-                    key={music.id} 
+                  <div
+                    key={music.id}
                     className="group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
@@ -290,7 +498,7 @@ export default function Music() {
               <h2 className="text-2xl font-bold text-foreground mb-4">Recently Played</h2>
               <div className="space-y-2">
                 {MOCK_MUSIC.slice(0, 6).map(music => (
-                  <div 
+                  <div
                     key={music.id}
                     className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
                     onClick={() => playSong(music)}
@@ -568,6 +776,25 @@ export default function Music() {
         </nav>
 
         <div className="mt-6">
+          <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+            <Users className="h-4 w-4" /> Friends' Playlists
+          </h3>
+          <div className="space-y-1">
+            {MOCK_FRIENDS_PLAYLISTS.map(playlist => (
+              <div key={playlist.id} className="p-2 rounded-lg hover:bg-accent/50 cursor-pointer transition-colors">
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded ${playlist.cover} flex-shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{playlist.name}</p>
+                    <p className="text-xs text-muted-foreground">{playlist.owner}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6">
           <Button
             variant="ghost"
             className="w-full justify-start mb-2"
@@ -580,7 +807,7 @@ export default function Music() {
             {customPlaylists.map(playlist => (
               <Button
                 key={playlist.id}
-                variant={selectedSection === 'playlists' && selectedPlaylist?.id === playlist.id ? 'secondary' : 'ghost'}
+                variant={selectedSection === 'playlist' && selectedPlaylist?.id === playlist.id ? 'secondary' : 'ghost'}
                 className="w-full justify-start text-sm"
                 onClick={() => openPlaylist(playlist)}
               >
@@ -589,17 +816,6 @@ export default function Music() {
               </Button>
             ))}
           </div>
-        </div>
-
-        <div className="mt-auto">
-          <Button
-            variant={selectedSection === 'friends' ? 'secondary' : 'ghost'}
-            className="w-full justify-start"
-            onClick={() => setSelectedSection('friends')}
-          >
-            <Users className="h-5 w-5 mr-3" />
-            Friends' Playlists
-          </Button>
         </div>
       </aside>
 
@@ -623,55 +839,6 @@ export default function Music() {
 
         {renderContent()}
       </main>
-
-      {/* Player Bar */}
-      {currentSong && (
-        <div className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border px-4 flex items-center gap-4 z-50">
-          <div className={`w-14 h-14 rounded ${currentSong.cover} flex-shrink-0`} />
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-foreground truncate">{currentSong.title}</h3>
-            <p className="text-sm text-muted-foreground truncate">{currentSong.artist}</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Shuffle className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <SkipBack className="h-4 w-4" />
-            </Button>
-            <Button size="icon" className="h-10 w-10 rounded-full">
-              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5 fill-current" />}
-            </Button>
-            <Button variant="ghost" size="icon">
-              <SkipForward className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Repeat className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex items-center gap-2 w-48">
-            <Volume2 className="h-4 w-4 text-muted-foreground" />
-            <Slider
-              value={volume}
-              onValueChange={setVolume}
-              max={100}
-              step={1}
-              className="flex-1"
-            />
-          </div>
-          <div className="flex items-center gap-2 w-32">
-            <span className="text-xs text-muted-foreground">1:23</span>
-            <Slider
-              value={progress}
-              onValueChange={setProgress}
-              max={100}
-              step={1}
-              className="flex-1"
-            />
-            <span className="text-xs text-muted-foreground">{currentSong.duration}</span>
-          </div>
-        </div>
-      )}
 
       {/* Create Playlist Dialog */}
       <Dialog open={createPlaylistOpen} onOpenChange={setCreatePlaylistOpen}>

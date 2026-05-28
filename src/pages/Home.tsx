@@ -142,13 +142,13 @@ export default function HomePage() {
         <HorizontalScroller>
           {joinedCommunities.map((communityName: string) => (
             <div key={communityName} className="flex-shrink-0 snap-start w-[160px] sm:w-[180px]">
-              <div onClick={() => navigate(`/community/${communityName}`)} className="cursor-pointer">
-                <div className="aspect-square w-[160px] sm:w-[180px] border border-border rounded-lg overflow-hidden mb-2" style={{ background: gradientFor(communityName, 1) }}>
+              <div onClick={() => navigate(`/community/${communityName}`)} className="cursor-pointer group">
+                <div className="aspect-square w-[160px] sm:w-[180px] border border-border rounded-lg overflow-hidden mb-2 transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/50" style={{ background: gradientFor(communityName, 1) }}>
                   <div className="w-full h-full flex items-center justify-center text-white font-bold text-xl">
                     {communityName[0]?.toUpperCase()}
                   </div>
                 </div>
-                <p className="text-sm font-medium text-foreground truncate">{communityName}</p>
+                <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{communityName}</p>
               </div>
             </div>
           ))}

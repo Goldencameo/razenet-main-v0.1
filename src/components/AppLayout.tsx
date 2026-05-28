@@ -10,6 +10,7 @@ import {
   Code2, Shield, Activity, PhoneCall, Mic, MicOff, LogOut, Music,
 } from 'lucide-react';
 import RazeHubLogo from '@/components/RazeHubLogo';
+import GlobalMusicPlayer from '@/components/GlobalMusicPlayer';
 
 function getGameGradient(name: string): string {
   const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
@@ -29,6 +30,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import type { Database } from '@/integrations/supabase/types';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFriendship } from '@/hooks/useFriendship';
@@ -558,41 +560,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <div className="space-y-2">
               {activeCalls.map((call: any) => (
                 <div key={call.id} className="bg-primary/10 border border-primary/20 rounded-lg p-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="relative">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                        style={{ backgroundColor: call.color, color: 'white' }}
-                      >
-                        {(call.name?.[0] || 'U').toUpperCase()}
-                      </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card bg-green-500" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-foreground truncate">{call.name}</div>
-                      <div className="text-xs text-muted-foreground">{call.duration} • {call.participants.length} in call</div>
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-foreground text-sm">{call.name}</span>
+                    <span className="text-xs text-muted-foreground">{call.duration}</span>
                   </div>
-                  
-                  {/* Participants in call */}
-                  {call.participants.length > 0 && (
-                    <div className="mb-2 flex flex-wrap gap-1">
-                      {call.participants.map((p: any) => (
-                        <div key={p.userId} className="flex items-center gap-1 text-xs bg-background/50 rounded px-2 py-1">
-                          <div
-                            className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold"
-                            style={{ backgroundColor: '#3B82F6', color: 'white' }}
-                          >
-                            {(p.userId?.[0] || 'U').toUpperCase()}
-                          </div>
-                          <span className="text-muted-foreground">{p.userId.substring(0, 6)}...</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Call controls */}
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => toggleMute(call.id, profile?.user_id || '')}
                       className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md transition-colors text-xs ${
@@ -623,7 +595,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
         </div>
 
         {/* Friend Activity Section */}
-        <div>
+        <div className="mb-6">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
             <Activity className="h-3.5 w-3.5" /> Friend Activity
           </h3>
@@ -651,6 +623,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
               ))}
             </div>
           )}
+        </div>
+
+        {/* Music Player or Ad Section - Only one shows at bottom */}
+        <div className="mt-auto">
+          <GlobalMusicPlayer />
         </div>
       </aside>
       </div>

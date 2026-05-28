@@ -34,7 +34,7 @@ function gradientFor(name: string, salt: number): string {
   const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) + salt * 137;
   const hue1 = hash % 360;
   const hue2 = (hash * 7 + salt * 53) % 360;
-  return `linear-gradient(135deg, hsl(${hue1}, 60%, 40%), hsl(${hue2}, 50%, 50%))`;
+  return `linear-gradient(135deg, hsl(${hue1}, 80%, 25%), hsl(${hue2}, 80%, 15%))`;
 }
 
 export default function Profile() {
@@ -116,8 +116,14 @@ export default function Profile() {
   // Show loading state if fetching target profile
   if (profileLoading && userId) {
     return (
-      <div className="p-6 text-center">
-        <div className="text-muted-foreground">Loading profile...</div>
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-b-primary/60 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+          </div>
+          <p className="text-sm text-muted-foreground animate-pulse font-medium">Loading profile...</p>
+        </div>
       </div>
     );
   }
@@ -437,13 +443,13 @@ export default function Profile() {
             {favoriteGames.map((fav) => (
               <div key={fav.game_id} className="group cursor-pointer shrink-0" onClick={() => navigate(`/game/${fav.game_id}`)}>
                 <div className="aspect-square w-40 h-40 bg-muted border border-border rounded-lg overflow-hidden mb-2">
-                  <div className="w-full h-full flex items-center justify-center text-sm font-semibold transition-transform duration-300 group-hover:scale-110"
+                  <div className="w-full h-full flex items-center justify-center text-sm font-semibold transition-transform duration-300 group-hover:scale-110 p-2 text-center"
                     style={{
                       background: getGameGradient(fav.games.name),
                       color: 'white',
                     }}
                   >
-                    {fav.games.name[0]?.toUpperCase() || '?'}
+                    {fav.games.name}
                   </div>
                 </div>
                 <p className="text-sm font-medium text-foreground truncate">{fav.games.name}</p>
@@ -459,15 +465,15 @@ export default function Profile() {
       <div className="mt-8">
         <h3 className="font-semibold text-foreground mb-3">Communities</h3>
         <div className="flex gap-4 overflow-x-auto pb-2">
-          {JSON.parse(localStorage.getItem(`communities_${profile?.user_id}`) || '[]').map((communityName: string) => (
-            <div key={communityName} className="group cursor-pointer shrink-0">
-              <div onClick={() => navigate(`/community/${communityName}`)} className="aspect-square w-40 h-40 bg-muted border border-border rounded-lg overflow-hidden mb-2">
-                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                  <div className="text-3xl font-bold">{communityName[0]?.toUpperCase() || '?'}</div>
+          {JSON.parse(localStorage.getItem(`communities_${userId}`) || '[]').map((communityName: string) => (
+            <div key={communityName} className="shrink-0">
+              <div onClick={() => navigate(`/community/${communityName}`)} className="cursor-pointer group">
+                <div className="aspect-square w-40 h-40 border border-border rounded-lg overflow-hidden mb-2 transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/50" style={{ background: gradientFor(communityName, 1) }}>
+                  <div className="w-full h-full flex items-center justify-center text-white font-bold text-xl transition-transform duration-300 group-hover:scale-110 p-2 text-center">
+                    {communityName}
+                  </div>
                 </div>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">{communityName}</p>
+                <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{communityName}</p>
               </div>
             </div>
           ))}
