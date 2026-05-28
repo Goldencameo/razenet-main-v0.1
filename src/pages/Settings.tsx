@@ -459,6 +459,19 @@ export default function SettingsPage() {
                 </div>
                 <Button variant="destructive" size="sm" disabled>Delete</Button>
               </div>
+              <div className="flex items-center justify-between py-3 border-b border-border">
+                <div>
+                  <p className="font-medium text-foreground">Show Welcome Panel</p>
+                  <p className="text-xs text-muted-foreground">Reset the welcome panel to see it again</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => {
+                  localStorage.removeItem('welcome_seen');
+                  localStorage.removeItem('welcome-ui-seen');
+                  toast({ title: 'Welcome panel reset', description: 'The welcome panel will appear on your next visit' });
+                }}>
+                  Reset
+                </Button>
+              </div>
               <div className="flex justify-end">
                 <Button onClick={handleSaveAccount} disabled={saving}>{saving ? t('profile.saving') : t('settings.saveChanges')}</Button>
               </div>

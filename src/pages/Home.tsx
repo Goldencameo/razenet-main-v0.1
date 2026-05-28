@@ -10,6 +10,13 @@ import HorizontalScroller from '@/components/HorizontalScroller';
 import WelcomeUI from '@/components/WelcomeUI';
 import { Users, Users2 } from 'lucide-react';
 
+function gradientFor(name: string, salt: number): string {
+  const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) + salt * 137;
+  const hue1 = hash % 360;
+  const hue2 = (hash * 7 + salt * 53) % 360;
+  return `linear-gradient(135deg, hsl(${hue1}, 60%, 40%), hsl(${hue2}, 50%, 50%))`;
+}
+
 export default function HomePage() {
   const { profile } = useAuth();
   const { t } = useI18n();
@@ -136,9 +143,9 @@ export default function HomePage() {
           {joinedCommunities.map((communityName: string) => (
             <div key={communityName} className="flex-shrink-0 snap-start w-[160px] sm:w-[180px]">
               <div onClick={() => navigate(`/community/${communityName}`)} className="cursor-pointer">
-                <div className="aspect-square w-[160px] sm:w-[180px] bg-muted border border-border rounded-lg overflow-hidden mb-2">
-                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                    <Users2 className="h-8 w-8" />
+                <div className="aspect-square w-[160px] sm:w-[180px] border border-border rounded-lg overflow-hidden mb-2" style={{ background: gradientFor(communityName, 1) }}>
+                  <div className="w-full h-full flex items-center justify-center text-white font-bold text-xl">
+                    {communityName[0]?.toUpperCase()}
                   </div>
                 </div>
                 <p className="text-sm font-medium text-foreground truncate">{communityName}</p>

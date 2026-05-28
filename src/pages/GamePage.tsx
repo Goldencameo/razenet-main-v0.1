@@ -864,11 +864,6 @@ export default function GamePage() {
           >
             {game.name} <span className="opacity-60 ml-2 text-sm">#{safeIndex + 1}</span>
           </div>
-            {game.trailer_url && (
-              <button className="absolute top-3 right-3 bg-destructive text-destructive-foreground px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 hover:opacity-90 transition-opacity z-10">
-                <Play className="h-3.5 w-3.5" /> {t('game.watchTrailer')}
-              </button>
-            )}
             <button
               onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-foreground/30 hover:bg-foreground/50 text-background w-9 h-9 rounded-full flex items-center justify-center transition-colors z-10"
