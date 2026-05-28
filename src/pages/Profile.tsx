@@ -98,10 +98,10 @@ export default function Profile() {
   const [bannerColor2, setBannerColor2] = useState('#6366F1');
   const [savingProfile, setSavingProfile] = useState(false);
 
-  const displayName = viewProfile?.display_name || viewProfile?.username || 'User';
-  const username = viewProfile?.username || 'user';
+  const displayName = viewProfile?.display_name || viewProfile?.username;
+  const username = viewProfile?.username;
   const avatarColor = viewProfile?.avatar_color || '#3B82F6';
-  const firstLetter = (displayName[0] || 'U').toUpperCase();
+  const firstLetter = displayName ? (displayName[0] || 'U').toUpperCase() : '';
   const createdAt = viewProfile?.created_at ? new Date(viewProfile.created_at) : new Date();
   const memberSince = createdAt.getFullYear();
 

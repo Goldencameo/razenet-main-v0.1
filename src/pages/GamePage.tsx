@@ -919,7 +919,6 @@ export default function GamePage() {
           )}
 
           {/* 3. Friends that played */}
-          <p className="text-sm text-muted-foreground mb-4">{t('game.friendsPlayed')}</p>
 
           {/* 4. Action buttons (mobile-first): Play | Follow+Notify | Favorite */}
           <div className="flex flex-col gap-2 mb-4 lg:hidden">
@@ -967,7 +966,9 @@ export default function GamePage() {
           {/* 6. Latest News */}
           <div className="mb-6">
             <h3 className="font-semibold text-foreground mb-4">Latest News</h3>
-            {newsData.length > 0 ? (
+            {game.name === 'Game' || game.developer === 'RazeHub Team' ? (
+              <p className="text-sm text-muted-foreground">No news yet</p>
+            ) : newsData.length > 0 ? (
               <div className="space-y-3">
                 {newsData.slice(0, 3).map((news) => (
                   <div key={news.id} className="bg-card border border-border rounded-lg p-4 hover:border-primary/10 transition-colors cursor-pointer" onClick={() => setSelectedNews(news)}>
@@ -1003,11 +1004,13 @@ export default function GamePage() {
           {/* 7. Upcoming Events */}
           <div className="mb-6">
             <h3 className="font-semibold text-foreground mb-4">Upcoming Events</h3>
-            {MOCK_EVENTS.length > 0 ? (
+            {game.name === 'Game' || game.developer === 'RazeHub Team' ? (
+              <p className="text-sm text-muted-foreground">No upcoming events</p>
+            ) : MOCK_EVENTS.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MOCK_EVENTS.map((event) => (
-                  <div 
-                    key={event.id} 
+                  <div
+                    key={event.id}
                     className="bg-gradient-to-br from-card to-muted/30 border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/40 transition-all cursor-pointer group"
                     onClick={() => setSelectedEvent(event)}
                   >

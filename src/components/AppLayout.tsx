@@ -66,7 +66,7 @@ export const useActivity = () => {
 export default function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { profile, refreshProfile } = useAuth();
+  const { profile, refreshProfile, loading } = useAuth();
   const { t } = useI18n();
   const [notifOpen, setNotifOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -194,10 +194,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
     updateCallDuration,
   };
 
-  const displayName = profile?.display_name || profile?.username || 'User';
-  const username = profile?.username || 'user';
+  const displayName = profile?.display_name || profile?.username;
+  const username = profile?.username;
   const avatarColor = profile?.avatar_color || '#3B82F6';
-  const firstLetter = (displayName[0] || 'U').toUpperCase();
+  const firstLetter = displayName ? (displayName[0] || 'U').toUpperCase() : '';
   const currentStatus = profile?.status || 'online';
 
   const navItems = [
@@ -322,44 +322,56 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
         {/* User section */}
         <div className="p-3 border-t border-border">
-          <div
-            className="flex items-center gap-2.5 cursor-pointer rounded-lg p-2 -m-1 hover:bg-accent/80 transition-all duration-200 group"
-            onClick={() => navigate('/profile')}
-          >
-            <div className="relative">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-transform duration-200 group-hover:scale-105 shadow-sm"
-                style={{ backgroundColor: avatarColor, color: 'white' }}
-              >
-                {firstLetter}
+          {loading ? (
+            <div className="flex items-center gap-2.5 p-2">
+              <div className="w-10 h-10 rounded-full bg-muted animate-pulse" />
+              <div className="flex-1 space-y-1">
+                <div className="h-4 bg-muted rounded w-24 animate-pulse" />
+                <div className="h-3 bg-muted rounded w-16 animate-pulse" />
               </div>
+            </div>
+          ) : (
+            <>
               <div
-                className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card ${statusInfo.color} transition-colors`}
-              />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
-              <p className="text-xs text-muted-foreground truncate">@{username}</p>
-            </div>
-          </div>
+                className="flex items-center gap-2.5 cursor-pointer rounded-lg p-2 -m-1 hover:bg-accent/80 transition-all duration-200 group"
+                onClick={() => navigate('/profile')}
+              >
+                <div className="relative">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0 shadow-sm"
+                    style={{ backgroundColor: avatarColor, color: 'white' }}
+                  >
+                    {firstLetter}
+                  </div>
+                  <div
+                    className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card ${statusInfo.color} transition-colors`}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+                  <p className="text-xs text-muted-foreground truncate">@{username}</p>
+                </div>
+              </div>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 mt-2 px-2 py-1.5 text-xs rounded-lg hover:bg-accent w-full transition-colors">
-                <div className={`w-2.5 h-2.5 rounded-full ${statusInfo.color}`} />
-                <span className="text-muted-foreground">{statusInfo.label}</span>
-                <ChevronDown className="h-3 w-3 ml-auto text-muted-foreground" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-48">
-              {statusOptions.map((opt) => (
-                <DropdownMenuItem key={opt.value} onClick={() => handleStatusChange(opt.value)}>
-                  <div className={`w-2.5 h-2.5 rounded-full mr-2 ${opt.color}`} />
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1.5 mt-2 px-2 py-1.5 text-xs rounded-lg hover:bg-accent w-full transition-colors">
+                    <div className={`w-2.5 h-2.5 rounded-full ${statusInfo.color}`} />
+                    <span className="text-muted-foreground">{statusInfo.label}</span>
+                    <ChevronDown className="h-3 w-3 ml-auto text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  {statusOptions.map((opt) => (
+                    <DropdownMenuItem key={opt.value} onClick={() => handleStatusChange(opt.value)}>
+                      <div className={`w-2.5 h-2.5 rounded-full mr-2 ${opt.color}`} />
+                      {opt.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         </div>
       </aside>
   );
@@ -387,7 +399,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <Menu className="h-5 w-5 text-muted-foreground" />
           </button>
           {/* Search Bar */}
-          <div className="flex-1 max-w-[520px] relative" ref={searchRef}>
+          <div className="flex-1 max-w-[320px] sm:max-w-[520px] relative" ref={searchRef}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
@@ -480,16 +492,16 @@ export default function AppLayout({ children }: AppLayoutProps) {
               if (open && unreadCount > 0) markAllRead.mutate();
             }}>
               <PopoverTrigger asChild>
-                <button className="relative p-2.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105">
+                <button className="relative p-2 sm:p-2.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-200 hover:scale-105">
                   <Bell className="h-5 w-5" />
                   {unreadCount > 0 && (
-                    <div className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold flex items-center justify-center animate-pulse">
+                    <div className="absolute top-1 right-1 min-w-[16px] h-[16px] sm:min-w-[18px] sm:h-[18px] px-0.5 sm:px-1 rounded-full bg-destructive text-destructive-foreground text-[9px] sm:text-[10px] font-bold flex items-center justify-center animate-pulse">
                       {unreadCount > 9 ? '9+' : unreadCount}
                     </div>
                   )}
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="end" className="w-[360px] max-w-[calc(100vw-1rem)] p-0">
+              <PopoverContent align="end" className="w-[320px] sm:w-[360px] max-w-[calc(100vw-1rem)] p-0">
                 <div className="p-3 border-b border-border flex items-center justify-between bg-gradient-to-r from-primary/5 to-transparent">
                   <span className="font-semibold text-foreground">{t('notif.title')}</span>
                   {unreadCount > 0 && (
@@ -532,7 +544,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Right Sidebar */}
-      <aside className="w-[260px] border-l border-border bg-card p-4 overflow-y-auto hidden xl:block shrink-0">
+      <aside className="w-[260px] border-l border-border bg-card p-4 overflow-y-auto hidden lg:block shrink-0">
         {/* Active Calls Section */}
         <div className="mb-6">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">

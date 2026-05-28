@@ -477,7 +477,7 @@ export default function Chat() {
     }
     const other = c.members.find((m: any) => m.user_id !== profile?.user_id);
     return {
-      name: other?.profile?.display_name || other?.profile?.username || 'User',
+      name: other?.profile?.display_name || other?.profile?.username,
       sub: other?.profile?.username ? `@${other.profile.username}` : '',
       color: other?.profile?.avatar_color || '#3B82F6',
       status: other?.profile?.status || 'offline'
@@ -558,13 +558,7 @@ export default function Chat() {
                 <button key={c.id} onClick={() => selectConversation(c.id)} onContextMenu={(e) => handleContextMenu(e, c.id)}
                   className={`w-full text-left flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors mb-0.5 ${active ? 'bg-primary/10' : 'hover:bg-accent'}`}>
                   <div className="relative">
-                    <div 
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (otherMember?.user_id) navigate(`/profile/${otherMember.user_id}`);
-                      }}
-                    >
+                    <div>
                       {avatarFor(d.name, d.color)}
                     </div>
                     {c.type === 'dm' && (
@@ -574,13 +568,7 @@ export default function Chat() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div 
-                      className="text-sm font-medium text-foreground truncate flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (otherMember?.user_id) navigate(`/profile/${otherMember.user_id}`);
-                      }}
-                    >
+                    <div className="text-sm font-medium text-foreground truncate flex items-center gap-1.5">
                       {d.name}
                       {c.type === 'group' && <Users className="h-3 w-3 text-muted-foreground" />}
                       {isFriend && <Crown className="h-3 w-3 text-yellow-500" />}
@@ -703,7 +691,7 @@ function ChatRoom({ conv, messages, draft, setDraft, sendMessage, leaveConv, tra
   const isGroup = conv.type === 'group';
   const isHost = isGroup && conv.host_id === meId;
   const other = !isGroup ? conv.members.find((m: any) => m.user_id !== meId) : null;
-  const headerName = isGroup ? (conv.name || 'Group') : (other?.profile?.display_name || other?.profile?.username || 'User');
+  const headerName = isGroup ? (conv.name || 'Group') : (other?.profile?.display_name || other?.profile?.username);
   const headerSub = isGroup
     ? `${conv.members.length} ${t('chat.members').toLowerCase()}`
     : (other?.profile?.username ? `@${other.profile.username}` : '');
@@ -1037,26 +1025,16 @@ function ChatRoom({ conv, messages, draft, setDraft, sendMessage, leaveConv, tra
                   <div className="space-y-1.5 max-h-72 overflow-y-auto">
                     {conv.members.map((m: any) => {
                       const p = m.profile;
-                      const name = p?.display_name || p?.username || 'User';
+                      const name = p?.display_name || p?.username;
                       const isThisHost = isGroup && conv.host_id === m.user_id;
                       return (
                         <div key={m.user_id} className="flex items-center gap-2 p-1.5 rounded-md hover:bg-accent">
-                          <div 
-                            className="relative cursor-pointer hover:opacity-80 transition-opacity"
-                            onClick={() => {
-                              if (m.user_id !== meId) navigate(`/profile/${m.user_id}`);
-                            }}
-                          >
+                          <div className="relative">
                             {avatarFor(name, p?.avatar_color || '#3B82F6')}
                             <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card bg-green-500`} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div 
-                              className="text-sm text-foreground truncate flex items-center gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                              onClick={() => {
-                                if (m.user_id !== meId) navigate(`/profile/${m.user_id}`);
-                              }}
-                            >
+                            <div className="text-sm text-foreground truncate flex items-center gap-1.5">
                               {name} {isThisHost && <Crown className="h-3 w-3 text-yellow-500" />}
                             </div>
                             {p?.username && <div className="text-xs text-muted-foreground truncate">@{p.username}</div>}
@@ -1147,7 +1125,7 @@ function ChatRoom({ conv, messages, draft, setDraft, sendMessage, leaveConv, tra
         {replyingTo && (
           <div className="mb-2 p-2 bg-muted rounded-lg border border-border">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-muted-foreground">Replying to {profileMap[replyingTo.sender_id]?.display_name || profileMap[replyingTo.sender_id]?.username || 'User'}</span>
+              <span className="text-xs font-medium text-muted-foreground">Replying to {profileMap[replyingTo.sender_id]?.display_name || profileMap[replyingTo.sender_id]?.username}</span>
               <Button
                 variant="ghost"
                 size="sm"

@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import GameCard from '@/components/GameCard';
 import SectionWithArrows from '@/components/SectionWithArrows';
 import HorizontalScroller from '@/components/HorizontalScroller';
+import WelcomeUI from '@/components/WelcomeUI';
 import { Users, Users2 } from 'lucide-react';
 
 export default function HomePage() {
@@ -14,7 +15,7 @@ export default function HomePage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const { data: friends } = useFriends();
-  const displayName = profile?.display_name || profile?.username || 'User';
+  const displayName = profile?.display_name || profile?.username;
 
   // Fetch joined communities from localStorage
   const joinedCommunities = profile?.user_id ? JSON.parse(localStorage.getItem(`communities_${profile.user_id}`) || '[]') : [];
@@ -52,40 +53,42 @@ export default function HomePage() {
   const recentGames = userGames?.filter(ug => !ug.is_favorite) || []; // Recently played games (not favorited)
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
+      <WelcomeUI onComplete={() => {}} />
+
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-xl border border-primary/10 p-6 mb-8">
+      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-xl border border-primary/10 p-4 sm:p-6 mb-6 sm:mb-8">
         <p className="text-muted-foreground">{t('home.welcome')}, {displayName}</p>
-        <h2 className="text-xl font-semibold text-foreground mt-0.5">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground mt-0.5">
           {greeting}
         </h2>
       </div>
 
       {/* Friends Section */}
-      <section className="mb-8">
+      <section className="mb-6 sm:mb-8">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground">{t('home.friends')}</h3>
         </div>
         {!friends || friends.length === 0 ? (
-          <div className="bg-muted/30 border border-border border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-2">
+          <div className="bg-muted/30 border border-border border-dashed rounded-xl p-6 sm:p-8 flex flex-col items-center justify-center gap-2">
             <Users className="h-8 w-8 text-muted-foreground/40" />
             <p className="text-sm text-muted-foreground text-center max-w-xs">{t('home.friends.empty')}</p>
           </div>
         ) : (
-          <HorizontalScroller step={280}>
+          <HorizontalScroller step={240}>
             {friends.map((f: any) => {
               const name = f.display_name || f.username;
               const statusColor = f.status === 'online' ? 'bg-green-500' : f.status === 'idle' ? 'bg-yellow-500' : f.status === 'dnd' ? 'bg-red-500' : 'bg-gray-400';
               return (
-                <button key={f.user_id} onClick={() => navigate(`/profile/${f.user_id}`)} className="flex-shrink-0 snap-start flex flex-col items-center gap-2 p-3 rounded-2xl hover:bg-accent transition-colors w-[120px]">
+                <button key={f.user_id} onClick={() => navigate(`/profile/${f.user_id}`)} className="flex-shrink-0 snap-start flex flex-col items-center gap-2 p-2 sm:p-3 rounded-2xl hover:bg-accent transition-colors w-[100px] sm:w-[120px]">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-bold shadow-md ring-2 ring-card" style={{ backgroundColor: f.avatar_color, color: 'white' }}>
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-2xl sm:text-3xl font-bold shadow-md ring-2 ring-card" style={{ backgroundColor: f.avatar_color, color: 'white' }}>
                       {name[0]?.toUpperCase()}
                     </div>
-                    <div className={`absolute bottom-1 right-1 w-5 h-5 rounded-full border-2 border-card ${statusColor}`} />
+                    <div className={`absolute bottom-1 right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-card ${statusColor}`} />
                   </div>
-                  <span className="text-sm font-medium text-foreground truncate max-w-full">{name}</span>
-                  <span className="text-[10px] text-muted-foreground capitalize">{f.status}</span>
+                  <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-full">{name}</span>
+                  <span className="text-[9px] sm:text-[10px] text-muted-foreground capitalize">{f.status}</span>
                 </button>
               );
             })}
