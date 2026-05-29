@@ -91,16 +91,38 @@ export default function Profile() {
 
   // Edit profile state
   const [editOpen, setEditOpen] = useState(false);
-  const [editAvatarColor, setEditAvatarColor] = useState(viewProfile?.avatar_color || '#3B82F6');
-  const [bannerStyle, setBannerStyle] = useState<'solid' | 'gradient'>('gradient');
-  const [bannerColor1, setBannerColor1] = useState(viewProfile?.avatar_color || '#3B82F6');
-  // Banner color 1 always matches avatar color
-  const [bannerColor2, setBannerColor2] = useState('#6366F1');
+  const [editAvatarColor, setEditAvatarColor] = useState(() => {
+    const savedColor = typeof window !== 'undefined' ? localStorage.getItem('avatar_color') : null;
+    return viewProfile?.avatar_color || savedColor || '#3B82F6';
+  });
+  const [bannerStyle, setBannerStyle] = useState<'solid' | 'gradient'>(() => {
+    const savedStyle = typeof window !== 'undefined' ? localStorage.getItem('banner_style') : null;
+    return (savedStyle as 'solid' | 'gradient') || 'gradient';
+  });
+  const [bannerColor1, setBannerColor1] = useState(() => {
+    const savedColor = typeof window !== 'undefined' ? localStorage.getItem('banner_color1') : null;
+    if (savedColor) return savedColor;
+    const avatarColor = viewProfile?.avatar_color || (typeof window !== 'undefined' ? localStorage.getItem('avatar_color') : null) || '#3B82F6';
+    return avatarColor;
+  });
+  // Banner color 1 matches avatar color by default but can be changed
+  const [bannerColor2, setBannerColor2] = useState(() => {
+    const savedColor = typeof window !== 'undefined' ? localStorage.getItem('banner_color2') : null;
+    if (savedColor) return savedColor;
+    // Randomize banner color 2 based on avatar color
+    const baseColor = viewProfile?.avatar_color || (typeof window !== 'undefined' ? localStorage.getItem('avatar_color') : null) || '#3B82F6';
+    const hash = baseColor.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const hue = (hash * 7) % 360;
+    return `hsl(${hue}, 70%, 50%)`;
+  });
   const [savingProfile, setSavingProfile] = useState(false);
 
   const displayName = viewProfile?.display_name || viewProfile?.username;
   const username = viewProfile?.username;
-  const avatarColor = viewProfile?.avatar_color || '#3B82F6';
+  const avatarColor = (() => {
+    const savedColor = typeof window !== 'undefined' ? localStorage.getItem('avatar_color') : null;
+    return viewProfile?.avatar_color || savedColor || '#3B82F6';
+  })();
   const firstLetter = displayName ? (displayName[0] || 'U').toUpperCase() : '';
   const createdAt = viewProfile?.created_at ? new Date(viewProfile.created_at) : new Date();
   const memberSince = createdAt.getFullYear();
@@ -219,6 +241,10 @@ export default function Profile() {
     if (error) {
       toast({ title: t('settings.error'), description: t('settings.errorSave'), variant: 'destructive' });
     } else {
+      // Save banner colors to localStorage
+      localStorage.setItem('banner_color1', bannerColor1);
+      localStorage.setItem('banner_color2', bannerColor2);
+      localStorage.setItem('banner_style', bannerStyle);
       toast({ title: t('settings.saved'), description: t('profile.savedProfile') });
       refreshProfile();
       setEditOpen(false);
@@ -270,7 +296,7 @@ export default function Profile() {
                 <div className="space-y-4 mt-2">
                   <div>
                     <label className="text-sm font-medium">{t('profile.avatarColor')}</label>
-                    <Input type="color" value={editAvatarColor} onChange={e => { setEditAvatarColor(e.target.value); setBannerColor1(e.target.value); }} className="h-10 w-20 mt-1 p-1 cursor-pointer" />
+                    <Input type="color" value={editAvatarColor} onChange={e => { setEditAvatarColor(e.target.value); }} className="h-10 w-20 mt-1 p-1 cursor-pointer" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">{t('profile.bannerStyle')}</label>
@@ -282,7 +308,7 @@ export default function Profile() {
                   <div className="flex gap-3">
                     <div>
                       <label className="text-sm font-medium">{t('profile.bannerColor1')}</label>
-                      <Input type="color" value={bannerColor1} disabled className="h-10 w-20 mt-1 p-1 opacity-60 cursor-not-allowed" title="Synced with avatar color" />
+                      <Input type="color" value={bannerColor1} onChange={e => setBannerColor1(e.target.value)} className="h-10 w-20 mt-1 p-1 cursor-pointer" />
                     </div>
                     {bannerStyle === 'gradient' && (
                       <div>
@@ -464,16 +490,16 @@ export default function Profile() {
       {/* Communities */}
       <div className="mt-8">
         <h3 className="font-semibold text-foreground mb-3">Communities</h3>
-        <div className="flex gap-4 overflow-x-auto pb-2">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2">
           {JSON.parse(localStorage.getItem(`communities_${userId}`) || '[]').map((communityName: string) => (
             <div key={communityName} className="shrink-0">
               <div onClick={() => navigate(`/community/${communityName}`)} className="cursor-pointer group">
-                <div className="aspect-square w-40 h-40 border border-border rounded-lg overflow-hidden mb-2 transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/50" style={{ background: gradientFor(communityName, 1) }}>
-                  <div className="w-full h-full flex items-center justify-center text-white font-bold text-xl transition-transform duration-300 group-hover:scale-110 p-2 text-center">
+                <div className="aspect-square w-28 h-28 sm:w-40 sm:h-40 border border-border rounded-lg overflow-hidden mb-2 transition-all duration-300 group-hover:shadow-lg group-hover:border-primary/50" style={{ background: gradientFor(communityName, 1) }}>
+                  <div className="w-full h-full flex items-center justify-center text-white font-bold text-sm sm:text-xl transition-transform duration-300 group-hover:scale-110 p-1 sm:p-2 text-center">
                     {communityName}
                   </div>
                 </div>
-                <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{communityName}</p>
+                <p className="text-xs sm:text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{communityName}</p>
               </div>
             </div>
           ))}

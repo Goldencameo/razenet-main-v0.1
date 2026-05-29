@@ -960,9 +960,9 @@ export default function GamePage() {
 
           {/* 6. Latest News */}
           <div className="mb-6">
-            <h3 className="font-semibold text-foreground mb-4">Latest News</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('gameNews.latestNews')}</h3>
             {game.name === 'Game' || game.developer === 'RazeHub Team' ? (
-              <p className="text-sm text-muted-foreground">No news yet</p>
+              <p className="text-sm text-muted-foreground">{t('gameNews.noNews')}</p>
             ) : newsData.length > 0 ? (
               <div className="space-y-3">
                 {newsData.slice(0, 3).map((news) => (
@@ -973,7 +973,7 @@ export default function GamePage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                            {news.type}
+                            {news.type === 'Announcement' ? t('gameNews.announcement') : news.type === 'Update' ? t('gameNews.update') : news.type === 'Event' ? t('gameNews.event') : news.type}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {new Date(news.date).toLocaleDateString()}
@@ -987,12 +987,12 @@ export default function GamePage() {
                 ))}
                 {newsData.length > 3 && (
                   <button className="text-sm text-primary hover:underline font-medium">
-                    View all news →
+                    {t('gameNews.readMore')} →
                   </button>
                 )}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No news yet</p>
+              <p className="text-sm text-muted-foreground">{t('gameNews.noNews')}</p>
             )}
           </div>
 
@@ -1275,7 +1275,7 @@ export default function GamePage() {
                 {/* Header with type and date */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                    {selectedNews.type}
+                    {selectedNews.type === 'Announcement' ? t('gameNews.announcement') : selectedNews.type === 'Update' ? t('gameNews.update') : selectedNews.type === 'Event' ? t('gameNews.event') : selectedNews.type}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {new Date(selectedNews.date).toLocaleDateString()}
@@ -1311,17 +1311,17 @@ export default function GamePage() {
                     <span className="text-sm font-medium">{selectedNews.dislikes}</span>
                   </button>
                   
-                  <button 
+                  <button
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
                     onClick={() => {
-                      toast({ title: 'Coming Soon', description: 'Discussion feature will be available soon!' });
+                      toast({ title: t('community.comingSoon'), description: t('gameNews.discussComingSoon') });
                     }}
                   >
                     <MessageCircle className="h-4 w-4" />
-                    <span className="text-sm font-medium">Discuss</span>
+                    <span className="text-sm font-medium">{t('gameNews.discuss')}</span>
                   </button>
-                  
-                  <button 
+
+                  <button
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
                     onClick={() => {
                       if (navigator.share) {
@@ -1332,12 +1332,12 @@ export default function GamePage() {
                         });
                       } else {
                         navigator.clipboard.writeText(window.location.href);
-                        toast({ title: 'Link copied', description: 'News link copied to clipboard' });
+                        toast({ title: t('gameNews.linkCopied'), description: t('gameNews.linkCopiedDesc') });
                       }
                     }}
                   >
                     <Share2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">Share</span>
+                    <span className="text-sm font-medium">{t('gameNews.share')}</span>
                   </button>
                 </div>
               </div>

@@ -105,10 +105,10 @@ export default function Community() {
   if (!studioName) {
     return (
       <div className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Community Not Found</h1>
-        <p className="text-muted-foreground">No studio name provided</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">{t('community.notFound')}</h1>
+        <p className="text-muted-foreground">{t('community.noStudioName')}</p>
         <Button onClick={() => navigate('/discover')} className="mt-4">
-          Back to Discover
+          {t('community.backToDiscover')}
         </Button>
       </div>
     );
@@ -187,7 +187,7 @@ export default function Community() {
   if (communityLoading || gamesLoading || announcementsLoading) {
     return (
       <div className="p-6 text-center">
-        <div className="text-muted-foreground">Loading community...</div>
+        <div className="text-muted-foreground">{t('community.loading')}</div>
       </div>
     );
   }
@@ -196,10 +196,10 @@ export default function Community() {
   if (communityError || gamesError) {
     return (
       <div className="p-6 text-center">
-        <h1 className="text-2xl font-bold text-foreground mb-2">Error Loading Community</h1>
-        <p className="text-muted-foreground mb-4">Failed to load community information</p>
+        <h1 className="text-2xl font-bold text-foreground mb-2">{t('community.errorLoading')}</h1>
+        <p className="text-muted-foreground mb-4">{t('community.errorLoadingDesc')}</p>
         <Button onClick={() => navigate('/discover')}>
-          Back to Discover
+          {t('community.backToDiscover')}
         </Button>
       </div>
     );
@@ -207,12 +207,12 @@ export default function Community() {
 
   const handleJoinCommunity = () => {
     if (!profile) {
-      toast({ title: 'Sign In Required', description: 'Please sign in to join communities' });
+      toast({ title: t('community.signInRequired'), description: t('community.signInToJoin') });
       return;
     }
     // Toggle membership status
     if (isCommunityMember) {
-      toast({ title: 'Already Member', description: 'You are already a member of this community' });
+      toast({ title: t('community.alreadyMember'), description: t('community.alreadyMemberDesc') });
       return;
     }
     // Add to user's communities (mock implementation)
@@ -222,18 +222,18 @@ export default function Community() {
       localStorage.setItem(`communities_${profile.user_id}`, JSON.stringify(savedCommunities));
     }
     setIsCommunityMember(true);
-    toast({ title: 'Community Joined', description: `You have successfully joined ${community.name}!` });
+    toast({ title: t('community.joined'), description: `You have successfully joined ${community.name}!` });
     // Update the community data to reflect membership change
     qc.invalidateQueries({ queryKey: ['community', studioName] });
   };
 
   const handleLeaveCommunity = () => {
     if (!profile) {
-      toast({ title: 'Sign In Required', description: 'Please sign in to leave communities' });
+      toast({ title: t('community.signInRequired'), description: t('community.signInToLeave') });
       return;
     }
     // Show confirmation dialog
-    const confirmed = window.confirm(`Are you sure you want to leave this community?\n\n⚠️ This will remove ${community.name} from your communities list.`);
+    const confirmed = window.confirm(`${t('community.leaveConfirm')}\n\n⚠️ This will remove ${community.name} from your communities list.`);
     if (confirmed) {
       // Remove from user's communities (mock implementation)
       const savedCommunities = JSON.parse(localStorage.getItem(`communities_${profile.user_id}`) || '[]');
@@ -242,7 +242,7 @@ export default function Community() {
         savedCommunities.splice(index, 1);
         localStorage.setItem(`communities_${profile.user_id}`, JSON.stringify(savedCommunities));
       }
-      toast({ title: 'Community Left', description: `You have left ${community.name}` });
+      toast({ title: t('community.left'), description: `You have left ${community.name}` });
       // Update the community data to reflect membership change
       qc.invalidateQueries({ queryKey: ['community', studioName] });
     }
@@ -250,11 +250,11 @@ export default function Community() {
 
   const handleFollowCommunity = () => {
     if (!profile) {
-      toast({ title: 'Sign In Required', description: 'Please sign in to follow communities' });
+      toast({ title: t('community.signInRequired'), description: t('community.signInToFollow') });
       return;
     }
     // TODO: Implement actual community following logic
-    toast({ title: 'Coming Soon', description: 'Community following feature coming soon!' });
+    toast({ title: t('community.comingSoon'), description: t('community.followingComingSoon') });
   };
 
   // Update announcement reaction with localStorage persistence
@@ -380,18 +380,18 @@ export default function Community() {
 
   const handleJoinGroup = () => {
     if (!profile) {
-      toast({ title: 'Sign In Required', description: 'Please sign in to join groups' });
+      toast({ title: t('community.signInRequired'), description: 'Please sign in to join groups' });
       return;
     }
     // TODO: Implement actual group joining logic
-    toast({ title: 'Coming Soon', description: 'Group joining feature coming soon!' });
+    toast({ title: t('community.comingSoon'), description: 'Group joining feature coming soon!' });
   };
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       {/* Back Button */}
       <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-        <ArrowLeft className="h-4 w-4" /> Back
+        <ArrowLeft className="h-4 w-4" /> {t('community.back')}
       </button>
       
       {/* Community Info */}
@@ -416,23 +416,23 @@ export default function Community() {
                 {community.name[0]?.toUpperCase() || 'S'}
               </div>
               <div className="absolute -top-2 -right-2 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                DEMO
+                {t('community.demo')}
               </div>
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-foreground">{community.name}</h1>
-              <p className="text-sm text-muted-foreground">by <button onClick={() => navigate(`/profile/${community.creatorId}`)} className="text-primary hover:underline">{community.createdBy}</button></p>
+              <p className="text-sm text-muted-foreground">{t('community.by')} <button onClick={() => navigate(`/profile/${community.creatorId}`)} className="text-primary hover:underline">{community.createdBy}</button></p>
               <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <span>{community.memberCount || 0} members</span>
+                <span>{community.memberCount || 0} {t('community.members')}</span>
                 <span>•</span>
-                <span>{community.activeCount || 0} active</span>
+                <span>{community.activeCount || 0} {t('community.active')}</span>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 {community?.isMember && (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/40 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 shadow-sm">
-                    <span className="text-sm font-semibold">Member</span>
+                    <span className="text-sm font-semibold">{t('community.member')}</span>
                   </div>
                 )}
               </div>
@@ -441,16 +441,16 @@ export default function Community() {
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="outline" className="text-destructive hover:text-destructive/90">
-                        <Plus className="h-4 w-4 mr-2 rotate-45" /> Leave Community
+                        <Plus className="h-4 w-4 mr-2 rotate-45" /> {t('community.leave')}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Leave Community</AlertDialogTitle>
-                        <AlertDialogDescription>Are you sure you want to leave this community? This will remove {community.name} from your communities list.</AlertDialogDescription>
+                        <AlertDialogTitle>{t('community.leave')}</AlertDialogTitle>
+                        <AlertDialogDescription>{t('community.leaveConfirm')} This will remove {community.name} from your communities list.</AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t('chat.cancel')}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => {
                           setIsCommunityMember(false);
                           const savedCommunities = JSON.parse(localStorage.getItem(`communities_${profile?.user_id}`) || '[]');
@@ -459,52 +459,52 @@ export default function Community() {
                             savedCommunities.splice(index, 1);
                             localStorage.setItem(`communities_${profile?.user_id}`, JSON.stringify(savedCommunities));
                           }
-                          toast({ title: 'Community Left', description: `You have left ${community.name}` });
+                          toast({ title: t('community.left'), description: `You have left ${community.name}` });
                           qc.invalidateQueries({ queryKey: ['community', studioName] });
-                        }}>Leave</AlertDialogAction>
+                        }}>{t('community.leave')}</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
                 ) : (
                   <Button onClick={handleJoinCommunity} className="bg-primary hover:bg-primary/90">
-                    <Plus className="h-4 w-4 mr-2" /> Join Community
+                    <Plus className="h-4 w-4 mr-2" /> {t('community.join')}
                   </Button>
                 )}
                 <Button onClick={handleJoinGroup} variant="outline">
-                  <Users className="h-4 w-4 mr-2" /> Join Group
+                  <Users className="h-4 w-4 mr-2" /> {t('community.joinGroup')}
                 </Button>
               </div>
             </div>
           </div>
-          
-          
+
+
           {/* Community Bio */}
           <div className="bg-card border border-border rounded-lg p-6 mt-8">
-            <h3 className="font-semibold text-foreground mb-4">About Community</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('community.about')}</h3>
             <p className="text-sm text-muted-foreground">{community.description}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-sm">
-                Game Development
+                {t('community.gameDevelopment')}
               </span>
               <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-sm">
-                Community Driven
+                {t('community.communityDriven')}
               </span>
               <span className="px-3 py-1 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 text-sm">
-                Indie Studio
+                {t('community.indieStudio')}
               </span>
             </div>
           </div>
-          
+
           {/* Games */}
           <div className="bg-card border border-border rounded-lg p-6 mt-8">
-            <h3 className="font-semibold text-foreground mb-4">Games</h3>
+            <h3 className="font-semibold text-foreground mb-4">{t('community.games')}</h3>
             {games && games.length > 0 ? (
               <div className="flex gap-4 overflow-x-auto pb-2">
                 {games.map((game) => (
                   <div key={game.id} className="group cursor-pointer shrink-0" onClick={() => navigate(`/game/${game.id}`)}>
                     <div className="aspect-square w-40 h-40 bg-muted border border-border rounded-lg overflow-hidden mb-2 relative">
                       <div className="absolute top-2 left-2 z-10 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                        DEMO
+                        {t('community.demo')}
                       </div>
                       <div className="w-full h-full flex items-center justify-center text-sm font-semibold transition-transform duration-300 group-hover:scale-110"
                         style={{
@@ -520,18 +520,18 @@ export default function Community() {
                 ))}
               </div>
             ) : (
-              <EmptyBubble text="No games published yet" />
+              <EmptyBubble text={t('community.noGames')} />
             )}
           </div>
-          
-          
+
+
           {/* Announcements */}
           <div className="bg-card border border-border rounded-lg p-6 mt-8">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-foreground">Latest News</h3>
-              <Button variant="outline" size="sm" onClick={() => toast({ title: 'Coming Soon', description: 'Notification preferences coming soon!' })}>
+              <h3 className="font-semibold text-foreground">{t('community.latestNews')}</h3>
+              <Button variant="outline" size="sm" onClick={() => toast({ title: t('community.comingSoon'), description: t('community.notifyComingSoon') })}>
                 <Bell className="h-4 w-4 mr-2" />
-                Notify Me
+                {t('community.notifyMe')}
               </Button>
             </div>
             {announcements && announcements.length > 0 ? (
@@ -547,7 +547,7 @@ export default function Community() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs font-medium px-2 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                            Announcement
+                            {t('community.announcement')}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {new Date(announcement.date).toLocaleDateString()}
@@ -561,7 +561,7 @@ export default function Community() {
                 ))}
               </div>
             ) : (
-              <EmptyBubble text="No announcements yet" />
+              <EmptyBubble text={t('community.noAnnouncements')} />
             )}
           </div>
         </>
@@ -580,7 +580,7 @@ export default function Community() {
                 {/* Header with date */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                    Announcement
+                    {t('community.announcement')}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {new Date(selectedNews.date).toLocaleDateString()}
@@ -601,16 +601,16 @@ export default function Community() {
                 
                 {/* Interaction buttons */}
                 <div className="flex items-center gap-4 pt-4 border-t border-border">
-                  <button 
+                  <button
                     disabled={isUpdatingReaction}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      userInteractions[selectedNews.id] === 'like' 
-                        ? 'bg-green-500 dark:bg-green-600 text-white' 
+                      userInteractions[selectedNews.id] === 'like'
+                        ? 'bg-green-500 dark:bg-green-600 text-white'
                         : 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30'
                     }`}
                     onClick={() => {
                       if (!profile) {
-                        toast({ title: 'Login Required', description: 'Please login to like announcements', variant: 'destructive' });
+                        toast({ title: t('community.loginRequired'), description: t('community.loginToLike'), variant: 'destructive' });
                         return;
                       }
                       updateAnnouncementReaction(selectedNews.id, 'like');
@@ -619,16 +619,16 @@ export default function Community() {
                     <ThumbsUp className="h-4 w-4" />
                     <span className="text-sm font-medium">{selectedNews.likes || 0}</span>
                   </button>
-                  <button 
+                  <button
                     disabled={isUpdatingReaction}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                      userInteractions[selectedNews.id] === 'dislike' 
-                        ? 'bg-red-500 dark:bg-red-600 text-white' 
+                      userInteractions[selectedNews.id] === 'dislike'
+                        ? 'bg-red-500 dark:bg-red-600 text-white'
                         : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30'
                     }`}
                     onClick={() => {
                       if (!profile) {
-                        toast({ title: 'Login Required', description: 'Please login to dislike announcements', variant: 'destructive' });
+                        toast({ title: t('community.loginRequired'), description: t('community.loginToDislike'), variant: 'destructive' });
                         return;
                       }
                       updateAnnouncementReaction(selectedNews.id, 'dislike');

@@ -144,74 +144,74 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-4 sm:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/cart')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <CreditCard className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">Checkout</h1>
+            <CreditCard className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Checkout</h1>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Complete your purchase securely
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Payment Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Card Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                  <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
                   Card Information
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePayment} className="space-y-4">
                   <div>
-                    <Label htmlFor="cardNumber">Card Number *</Label>
+                    <Label htmlFor="cardNumber" className="text-sm">Card Number *</Label>
                     <Input
                       id="cardNumber"
                       placeholder="1234 5678 9012 3456"
                       value={formatCardNumber(cardNumber)}
                       onChange={(e) => setCardNumber(e.target.value)}
                       maxLength={19}
-                      className="mt-2"
+                      className="mt-2 h-10 sm:h-10"
                       required
                     />
                   </div>
                   
                   <div>
-                    <Label htmlFor="cardName">Cardholder Name *</Label>
+                    <Label htmlFor="cardName" className="text-sm">Cardholder Name *</Label>
                     <Input
                       id="cardName"
                       placeholder="John Doe"
                       value={cardName}
                       onChange={(e) => setCardName(e.target.value)}
-                      className="mt-2"
+                      className="mt-2 h-10 sm:h-10"
                       required
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="expiry">Expiry Date (MM/YY) *</Label>
+                      <Label htmlFor="expiry" className="text-sm">Expiry Date (MM/YY) *</Label>
                       <Input
                         id="expiry"
                         placeholder="MM/YY"
                         value={formatExpiry(expiryDate)}
                         onChange={(e) => setExpiryDate(e.target.value)}
                         maxLength={5}
-                        className="mt-2"
+                        className="mt-2 h-10 sm:h-10"
                         required
                       />
                     </div>
                     <div>
-                      <Label htmlFor="cvv">CVV *</Label>
+                      <Label htmlFor="cvv" className="text-sm">CVV *</Label>
                       <Input
                         id="cvv"
                         placeholder="123"
@@ -219,7 +219,7 @@ export default function Checkout() {
                         value={cvv}
                         onChange={(e) => setCvv(e.target.value)}
                         maxLength={4}
-                        className="mt-2"
+                        className="mt-2 h-10 sm:h-10"
                         required
                       />
                     </div>
@@ -227,53 +227,53 @@ export default function Checkout() {
 
                   {/* Billing Address */}
                   <div className="pt-4 border-t border-border">
-                    <h3 className="font-semibold text-foreground mb-4">Billing Address</h3>
+                    <h3 className="font-semibold text-foreground mb-4 text-sm sm:text-base">Billing Address</h3>
                     
                     <div>
-                      <Label htmlFor="address">Street Address *</Label>
+                      <Label htmlFor="address" className="text-sm">Street Address *</Label>
                       <Input
                         id="address"
                         placeholder="123 Main Street"
                         value={billingAddress}
                         onChange={(e) => setBillingAddress(e.target.value)}
-                        className="mt-2"
+                        className="mt-2 h-10 sm:h-10"
                         required
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 mt-4">
                       <div>
-                        <Label htmlFor="city">City *</Label>
+                        <Label htmlFor="city" className="text-sm">City *</Label>
                         <Input
                           id="city"
                           placeholder="New York"
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          className="mt-2"
+                          className="mt-2 h-10 sm:h-10"
                           required
                         />
                       </div>
                       <div>
-                        <Label htmlFor="zip">ZIP Code *</Label>
+                        <Label htmlFor="zip" className="text-sm">ZIP Code *</Label>
                         <Input
                           id="zip"
                           placeholder="10001"
                           value={zipCode}
                           onChange={(e) => setZipCode(e.target.value)}
-                          className="mt-2"
+                          className="mt-2 h-10 sm:h-10"
                           required
                         />
                       </div>
                     </div>
 
                     <div className="mt-4">
-                      <Label htmlFor="country">Country *</Label>
+                      <Label htmlFor="country" className="text-sm">Country *</Label>
                       <Input
                         id="country"
                         placeholder="United States"
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="mt-2"
+                        className="mt-2 h-10 sm:h-10"
                         required
                       />
                     </div>
@@ -281,7 +281,7 @@ export default function Checkout() {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 text-base"
+                    className="w-full h-12 text-base sm:text-base"
                     disabled={processing}
                   >
                     {processing ? (
@@ -301,8 +301,8 @@ export default function Checkout() {
             </Card>
 
             {/* Security Notice */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground p-4 bg-muted/50 rounded-lg border border-border">
-              <Lock className="h-4 w-4" />
+            <div className="flex items-start gap-2 text-xs sm:text-sm text-muted-foreground p-3 sm:p-4 bg-muted/50 rounded-lg border border-border">
+              <Lock className="h-4 w-4 flex-shrink-0 mt-0.5" />
               <p>Your payment information is encrypted and secure. We never store your full card details.</p>
             </div>
           </div>
@@ -311,30 +311,30 @@ export default function Checkout() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+                <CardTitle className="text-base sm:text-lg">Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {cartItems.map(item => (
                   <div key={item.id} className="flex gap-3">
-                    <div className={`w-16 h-16 rounded-lg ${item.image} flex-shrink-0`} />
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-lg ${item.image} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-foreground text-sm line-clamp-1">{item.name}</h4>
-                      <p className="text-xs text-muted-foreground">{item.publisher}</p>
-                      <p className="text-sm font-bold text-foreground mt-1">{item.price} RZ</p>
+                      <h4 className="font-medium text-foreground text-xs sm:text-sm line-clamp-1">{item.name}</h4>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{item.publisher}</p>
+                      <p className="text-xs sm:text-sm font-bold text-foreground mt-1">{item.price} RZ</p>
                     </div>
                   </div>
                 ))}
 
                 <div className="border-t border-border pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">{getTotal()} RZ</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span className="text-muted-foreground">Tax</span>
                     <span className="font-medium">0 RZ</span>
                   </div>
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
+                  <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t border-border">
                     <span>Total</span>
                     <span>{getTotal()} RZ</span>
                   </div>
@@ -344,20 +344,20 @@ export default function Checkout() {
 
             {/* Payment Methods */}
             <Card>
-              <CardContent className="p-4">
-                <p className="text-sm font-medium text-foreground mb-3">Accepted Payment Methods</p>
-                <div className="flex gap-2">
-                  <div className="flex items-center justify-center w-12 h-8 bg-background border border-border rounded">
-                    <span className="text-xs font-bold text-muted-foreground">VISA</span>
+              <CardContent className="p-3 sm:p-4">
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">Accepted Payment Methods</p>
+                <div className="flex gap-2 flex-wrap">
+                  <div className="flex items-center justify-center w-10 h-8 sm:w-12 sm:h-8 bg-background border border-border rounded">
+                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground">VISA</span>
                   </div>
-                  <div className="flex items-center justify-center w-12 h-8 bg-background border border-border rounded">
-                    <span className="text-xs font-bold text-muted-foreground">MC</span>
+                  <div className="flex items-center justify-center w-10 h-8 sm:w-12 sm:h-8 bg-background border border-border rounded">
+                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground">MC</span>
                   </div>
-                  <div className="flex items-center justify-center w-12 h-8 bg-background border border-border rounded">
-                    <span className="text-xs font-bold text-muted-foreground">AMEX</span>
+                  <div className="flex items-center justify-center w-10 h-8 sm:w-12 sm:h-8 bg-background border border-border rounded">
+                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground">AMEX</span>
                   </div>
-                  <div className="flex items-center justify-center w-12 h-8 bg-background border border-border rounded">
-                    <span className="text-xs font-bold text-muted-foreground">PP</span>
+                  <div className="flex items-center justify-center w-10 h-8 sm:w-12 sm:h-8 bg-background border border-border rounded">
+                    <span className="text-[10px] sm:text-xs font-bold text-muted-foreground">PP</span>
                   </div>
                 </div>
               </CardContent>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMusic } from '@/contexts/MusicContext';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -274,6 +275,7 @@ export default function Music() {
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const {
     currentSong,
     isPlaying,
@@ -318,16 +320,16 @@ export default function Music() {
   const toggleFavoriteLocal = (musicId: number) => {
     toggleFavorite(musicId);
     toast({
-      title: favorites.includes(musicId) ? 'Removed from Favorites' : 'Added to Favorites',
+      title: favorites.includes(musicId) ? t('music.removedFromFavorites') : t('music.addedToFavorites'),
       description: favorites.includes(musicId)
-        ? 'Song removed from your favorites'
-        : 'Song added to your favorites',
+        ? t('music.songRemovedFromFavorites')
+        : t('music.songAddedToFavorites'),
     });
   };
 
   const createPlaylist = () => {
     if (!newPlaylistName.trim()) {
-      toast({ title: 'Error', description: 'Please enter a playlist name', variant: 'destructive' });
+      toast({ title: t('music.error'), description: t('music.enterPlaylistName'), variant: 'destructive' });
       return;
     }
 
@@ -341,12 +343,12 @@ export default function Music() {
     setCustomPlaylists([...customPlaylists, newPlaylist]);
     setNewPlaylistName('');
     setCreatePlaylistOpen(false);
-    toast({ title: 'Playlist Created', description: `"${newPlaylistName}" has been created` });
+    toast({ title: t('music.playlistCreated'), description: `"${newPlaylistName}" has been created` });
   };
 
   const deletePlaylist = (playlistId: string) => {
     setCustomPlaylists(customPlaylists.filter(p => p.id !== playlistId));
-    toast({ title: 'Playlist Deleted', description: 'Playlist has been removed' });
+    toast({ title: t('music.playlistDeleted'), description: t('music.playlistDeletedDesc') });
   };
 
   const addToPlaylist = (playlistId: string) => {
@@ -363,7 +365,7 @@ export default function Music() {
     localStorage.setItem('music-playlists', JSON.stringify(updatedPlaylists));
     setAddToPlaylistOpen(false);
     setSongToAdd(null);
-    toast({ title: 'Added to Playlist', description: 'Song has been added to the playlist' });
+    toast({ title: t('music.addedToPlaylist'), description: t('music.addedToPlaylistDesc') });
   };
 
   const removeFromPlaylist = (playlistId: string, songId: number) => {
@@ -376,7 +378,7 @@ export default function Music() {
 
     setCustomPlaylists(updatedPlaylists);
     localStorage.setItem('music-playlists', JSON.stringify(updatedPlaylists));
-    toast({ title: 'Removed from Playlist', description: 'Song has been removed from the playlist' });
+    toast({ title: t('music.removedFromPlaylist'), description: t('music.removedFromPlaylistDesc') });
   };
 
   const openPlaylist = (playlist: any) => {
@@ -409,7 +411,7 @@ export default function Music() {
                       : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
                 >
-                  All
+                  {t('music.all')}
                 </button>
                 {GENRES.map(genre => (
                   <button
@@ -429,21 +431,21 @@ export default function Music() {
 
             {/* Featured Section */}
             <section>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Featured</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">{t('music.featured')}</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {newReleases.map(music => (
                   <div
                     key={music.id}
                     className="group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
-                    <div className={`aspect-square rounded-lg ${music.cover} mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all`}>
+                    <div className={`aspect-square rounded-lg ${music.cover} mb-2 sm:mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all`}>
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="h-12 w-12 text-white fill-white" />
+                        <Play className="h-10 w-10 sm:h-12 sm:w-12 text-white fill-white" />
                       </div>
                     </div>
-                    <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
-                    <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist}</p>
                   </div>
                 ))}
               </div>
@@ -451,43 +453,43 @@ export default function Music() {
 
             {/* Top Charts */}
             <section>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Top Charts</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">{t('music.topCharts')}</h2>
               <div className="space-y-2">
                 {topCharts.map((music, index) => (
                   <div
                     key={music.id}
-                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
-                    <span className="w-8 text-center font-bold text-muted-foreground">{index + 1}</span>
-                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <span className="w-6 sm:w-8 text-center font-bold text-sm sm:text-base text-muted-foreground">{index + 1}</span>
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded ${music.cover} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
-                      <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                      <h3 className="font-medium text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist}</p>
                     </div>
-                    <span className="text-sm text-muted-foreground">{music.plays}</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{music.plays}</span>
                   </div>
                 ))}
               </div>
             </section>
 
-            {/* Made For You */}
+            {/* Made For you */}
             <section>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Made For You</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">{t('music.madeForYou')}</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {MOCK_MUSIC.slice(0, 5).map(music => (
                   <div
                     key={music.id}
                     className="group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
-                    <div className={`aspect-square rounded-lg ${music.cover} mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all`}>
+                    <div className={`aspect-square rounded-lg ${music.cover} mb-2 sm:mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all`}>
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="h-12 w-12 text-white fill-white" />
+                        <Play className="h-10 w-10 sm:h-12 sm:w-12 text-white fill-white" />
                       </div>
                     </div>
-                    <h3 className="font-semibold text-foreground truncate">{music.title}</h3>
-                    <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist}</p>
                   </div>
                 ))}
               </div>
@@ -495,20 +497,20 @@ export default function Music() {
 
             {/* Recently Played */}
             <section>
-              <h2 className="text-2xl font-bold text-foreground mb-4">Recently Played</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">{t('music.recentlyPlayed')}</h2>
               <div className="space-y-2">
                 {MOCK_MUSIC.slice(0, 6).map(music => (
                   <div
                     key={music.id}
-                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
-                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded ${music.cover} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
-                      <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                      <h3 className="font-medium text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist}</p>
                     </div>
-                    <span className="text-sm text-muted-foreground">{music.duration}</span>
+                    <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{music.duration}</span>
                   </div>
                 ))}
               </div>
@@ -518,8 +520,8 @@ export default function Music() {
 
       case 'search':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Search Results</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('music.searchResults')}</h2>
             {filteredMusic.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 No results found for "{searchQuery}"
@@ -527,22 +529,23 @@ export default function Music() {
             ) : (
               <div className="space-y-2">
                 {filteredMusic.map(music => (
-                  <div 
+                  <div
                     key={music.id}
-                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
-                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded ${music.cover} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
-                      <p className="text-sm text-muted-foreground truncate">{music.artist} • {music.album}</p>
+                      <h3 className="font-medium text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist} • {music.album}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{music.genre}</Badge>
-                      <span className="text-sm text-muted-foreground">{music.duration}</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <Badge variant="outline" className="text-xs hidden sm:block">{music.genre}</Badge>
+                      <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{music.duration}</span>
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleFavorite(music.id);
@@ -553,6 +556,7 @@ export default function Music() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSongToAdd(music);
@@ -571,34 +575,35 @@ export default function Music() {
 
       case 'favorites':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Liked Songs</h2>
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('music.likedSongs')}</h2>
             {favoriteSongs.length === 0 ? (
               <div className="text-center py-12">
-                <HeartFilled className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No favorites yet</h3>
+                <HeartFilled className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{t('music.noFavorites')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Start adding music to your favorites
+                  {t('music.startAddingFavorites')}
                 </p>
               </div>
             ) : (
               <div className="space-y-2">
                 {favoriteSongs.map(music => (
-                  <div 
+                  <div
                     key={music.id}
-                    className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                    className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
                     onClick={() => playSong(music)}
                   >
-                    <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded ${music.cover} flex-shrink-0`} />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-foreground truncate">{music.title}</h3>
-                      <p className="text-sm text-muted-foreground truncate">{music.artist} • {music.album}</p>
+                      <h3 className="font-medium text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist} • {music.album}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">{music.duration}</span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{music.duration}</span>
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleFavorite(music.id);
@@ -616,39 +621,40 @@ export default function Music() {
 
       case 'playlists':
         return selectedPlaylist ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <Button variant="ghost" onClick={() => setSelectedPlaylist(null)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Playlists
+              {t('music.backToPlaylists')}
             </Button>
-            <div className="flex items-center gap-6">
-              <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl">
-                <List className="h-20 w-20 text-white" />
+            <div className="flex items-center gap-4 sm:gap-6">
+              <div className="w-32 h-32 sm:w-48 sm:h-48 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl">
+                <List className="h-12 w-12 sm:h-20 sm:w-20 text-white" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground uppercase tracking-wider">Playlist</p>
-                <h1 className="text-4xl font-bold text-foreground mb-2">{selectedPlaylist.name}</h1>
-                <p className="text-muted-foreground">{selectedPlaylist.songs.length} songs</p>
+                <p className="text-xs sm:text-sm text-muted-foreground uppercase tracking-wider">{t('music.playlist')}</p>
+                <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-2">{selectedPlaylist.name}</h1>
+                <p className="text-muted-foreground">{selectedPlaylist.songs.length} {t('music.songs')}</p>
               </div>
             </div>
             <div className="space-y-2">
               {getPlaylistSongs(selectedPlaylist).map((music, index) => (
-                <div 
+                <div
                   key={music.id}
-                  className="flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
+                  className="flex items-center gap-3 sm:gap-4 p-2 sm:p-3 rounded-lg hover:bg-accent/50 transition-colors group cursor-pointer"
                   onClick={() => playSong(music)}
                 >
-                  <span className="w-6 text-center text-muted-foreground">{index + 1}</span>
-                  <div className={`w-12 h-12 rounded ${music.cover} flex-shrink-0`} />
+                  <span className="w-5 sm:w-6 text-center text-muted-foreground text-sm">{index + 1}</span>
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded ${music.cover} flex-shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-foreground truncate">{music.title}</h3>
-                    <p className="text-sm text-muted-foreground truncate">{music.artist}</p>
+                    <h3 className="font-medium text-sm sm:text-base text-foreground truncate">{music.title}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{music.artist}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">{music.duration}</span>
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="text-xs sm:text-sm text-muted-foreground hidden sm:block">{music.duration}</span>
                     <Button
                       variant="ghost"
                       size="icon"
+                      className="h-8 w-8 sm:h-9 sm:w-9"
                       onClick={(e) => {
                         e.stopPropagation();
                         removeFromPlaylist(selectedPlaylist.id, music.id);
@@ -661,48 +667,48 @@ export default function Music() {
               ))}
               {getPlaylistSongs(selectedPlaylist).length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  This playlist is empty
+                  {t('music.playlistEmpty')}
                 </div>
               )}
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-foreground">Your Playlists</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('music.yourPlaylists')}</h2>
               <Button onClick={() => setCreatePlaylistOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                Create Playlist
+                {t('music.createPlaylist')}
               </Button>
             </div>
             {customPlaylists.length === 0 ? (
               <div className="text-center py-12">
-                <List className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold text-foreground mb-2">No playlists yet</h3>
+                <List className="h-12 w-12 sm:h-16 sm:w-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2">{t('music.noPlaylists')}</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Create your first playlist to organize your music
+                  {t('music.createFirstPlaylist')}
                 </p>
                 <Button onClick={() => setCreatePlaylistOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  Create Playlist
+                  {t('music.createPlaylist')}
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {customPlaylists.map(playlist => (
-                  <div 
-                    key={playlist.id} 
+                  <div
+                    key={playlist.id}
                     className="group cursor-pointer"
                     onClick={() => openPlaylist(playlist)}
                   >
-                    <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all flex items-center justify-center">
-                      <List className="h-16 w-16 text-white" />
+                    <div className="aspect-square rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 mb-2 sm:mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all flex items-center justify-center">
+                      <List className="h-12 w-12 sm:h-16 sm:w-16 text-white" />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="h-12 w-12 text-white fill-white" />
+                        <Play className="h-10 w-10 sm:h-12 sm:w-12 text-white fill-white" />
                       </div>
                     </div>
-                    <h3 className="font-semibold text-foreground truncate">{playlist.name}</h3>
-                    <p className="text-sm text-muted-foreground">{playlist.songs.length} songs</p>
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{playlist.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">{playlist.songs.length} {t('music.songs')}</p>
                   </div>
                 ))}
               </div>
@@ -712,24 +718,24 @@ export default function Music() {
 
       case 'friends':
         return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">Friends' Playlists</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground">{t('music.friendsPlaylists')}</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {MOCK_FRIENDS_PLAYLISTS.map(playlist => (
                 <div key={playlist.id} className="group cursor-pointer">
-                  <div className={`aspect-square rounded-lg ${playlist.cover} mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all flex items-center justify-center`}>
-                    <List className="h-16 w-16 text-white" />
+                  <div className={`aspect-square rounded-lg ${playlist.cover} mb-2 sm:mb-3 relative overflow-hidden shadow-lg group-hover:shadow-xl transition-all flex items-center justify-center`}>
+                    <List className="h-12 w-12 sm:h-16 sm:w-16 text-white" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Play className="h-12 w-12 text-white fill-white" />
+                      <Play className="h-10 w-10 sm:h-12 sm:w-12 text-white fill-white" />
                     </div>
                   </div>
-                  <h3 className="font-semibold text-foreground truncate">{playlist.name}</h3>
-                  <p className="text-sm text-muted-foreground">By {playlist.owner} • {playlist.songCount} songs</p>
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground truncate">{playlist.name}</h3>
+                  <p className="text-xs sm:text-sm text-muted-foreground">By {playlist.owner} • {playlist.songCount} {t('music.songs')}</p>
                 </div>
               ))}
             </div>
-            <div className="text-center py-8 text-muted-foreground text-sm">
-              Friends can create up to 1 playlist each
+            <div className="text-center py-8 text-muted-foreground text-xs sm:text-sm">
+              {t('music.friendsLimit')}
             </div>
           </div>
         );
@@ -742,10 +748,10 @@ export default function Music() {
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 bg-black/10 dark:bg-black/40 p-4 flex flex-col gap-4">
+      <aside className="hidden md:flex w-64 bg-black/10 dark:bg-black/40 p-4 flex-col gap-4">
         <div className="flex items-center gap-3 mb-4">
           <MusicIcon className="h-8 w-8 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">Music</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('music.title')}</h1>
         </div>
 
         <nav className="space-y-2">
@@ -755,7 +761,7 @@ export default function Music() {
             onClick={() => setSelectedSection('home')}
           >
             <Home className="h-5 w-5 mr-3" />
-            Home
+            {t('music.home')}
           </Button>
           <Button
             variant={selectedSection === 'search' ? 'secondary' : 'ghost'}
@@ -763,7 +769,7 @@ export default function Music() {
             onClick={() => setSelectedSection('search')}
           >
             <Search className="h-5 w-5 mr-3" />
-            Search
+            {t('music.search')}
           </Button>
           <Button
             variant={selectedSection === 'favorites' ? 'secondary' : 'ghost'}
@@ -771,13 +777,13 @@ export default function Music() {
             onClick={() => setSelectedSection('favorites')}
           >
             <HeartFilled className="h-5 w-5 mr-3" />
-            Liked Songs
+            {t('music.likedSongs')}
           </Button>
         </nav>
 
         <div className="mt-6">
           <h3 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-            <Users className="h-4 w-4" /> Friends' Playlists
+            <Users className="h-4 w-4" /> {t('music.friendsPlaylists')}
           </h3>
           <div className="space-y-1">
             {MOCK_FRIENDS_PLAYLISTS.map(playlist => (
@@ -801,7 +807,7 @@ export default function Music() {
             onClick={() => setCreatePlaylistOpen(true)}
           >
             <Plus className="h-5 w-5 mr-3" />
-            Create Playlist
+            {t('music.createPlaylist')}
           </Button>
           <div className="space-y-1">
             {customPlaylists.map(playlist => (
@@ -820,15 +826,15 @@ export default function Music() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 pb-32">
+      <main className="flex-1 overflow-y-auto p-4 sm:p-6 pb-20 md:pb-32">
         {/* Search Bar */}
         {selectedSection === 'search' && (
-          <div className="mb-6">
-            <div className="relative max-w-md">
+          <div className="mb-4 sm:mb-6">
+            <div className="relative w-full max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search music, artists, genres..."
+                placeholder={t('music.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -844,16 +850,16 @@ export default function Music() {
       <Dialog open={createPlaylistOpen} onOpenChange={setCreatePlaylistOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create New Playlist</DialogTitle>
+            <DialogTitle>{t('music.createPlaylistTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <Input
-              placeholder="Playlist name"
+              placeholder={t('music.playlistName')}
               value={newPlaylistName}
               onChange={(e) => setNewPlaylistName(e.target.value)}
             />
             <Button className="w-full" onClick={createPlaylist}>
-              Create
+              {t('music.create')}
             </Button>
           </div>
         </DialogContent>
@@ -863,11 +869,11 @@ export default function Music() {
       <Dialog open={addToPlaylistOpen} onOpenChange={setAddToPlaylistOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add to Playlist</DialogTitle>
+            <DialogTitle>{t('music.addedToPlaylist')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
             {customPlaylists.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No playlists yet. Create one first!</p>
+              <p className="text-sm text-muted-foreground">{t('music.noPlaylists')}. {t('music.createFirstPlaylist')}</p>
             ) : (
               customPlaylists.map(playlist => (
                 <Button
@@ -884,6 +890,42 @@ export default function Music() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border p-2 flex justify-around items-center z-50">
+        <Button
+          variant={selectedSection === 'home' ? 'secondary' : 'ghost'}
+          className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+          onClick={() => setSelectedSection('home')}
+        >
+          <Home className="h-5 w-5" />
+          <span className="text-xs">{t('music.home')}</span>
+        </Button>
+        <Button
+          variant={selectedSection === 'search' ? 'secondary' : 'ghost'}
+          className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+          onClick={() => setSelectedSection('search')}
+        >
+          <Search className="h-5 w-5" />
+          <span className="text-xs">{t('music.search')}</span>
+        </Button>
+        <Button
+          variant={selectedSection === 'favorites' ? 'secondary' : 'ghost'}
+          className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+          onClick={() => setSelectedSection('favorites')}
+        >
+          <HeartFilled className="h-5 w-5" />
+          <span className="text-xs">{t('music.likedSongs')}</span>
+        </Button>
+        <Button
+          variant={selectedSection === 'playlists' ? 'secondary' : 'ghost'}
+          className="flex flex-col items-center gap-1 h-auto py-2 px-3"
+          onClick={() => setSelectedSection('playlists')}
+        >
+          <List className="h-5 w-5" />
+          <span className="text-xs">{t('music.yourPlaylists')}</span>
+        </Button>
+      </div>
     </div>
   );
 }

@@ -35,6 +35,9 @@ export default function WelcomeUI({ onComplete, preAcceptRules = false, forceOpe
   const [acceptedRules, setAcceptedRules] = useState(false);
   const [showSkipWarning, setShowSkipWarning] = useState(false);
   const [selectedAvatarColor, setSelectedAvatarColor] = useState('#3B82F6');
+  const [selectedBannerColor1, setSelectedBannerColor1] = useState('#3B82F6');
+  const [selectedBannerColor2, setSelectedBannerColor2] = useState('#6366F1');
+  const [selectedBannerStyle, setSelectedBannerStyle] = useState<'solid' | 'gradient'>('gradient');
   const rulesRef = useRef<HTMLDivElement>(null);
   const { t, language, setLanguage } = useI18n();
   const { theme, setTheme } = useTheme();
@@ -45,6 +48,12 @@ export default function WelcomeUI({ onComplete, preAcceptRules = false, forceOpe
   useEffect(() => {
     // Check if welcome UI was already shown (check both old and new keys)
     const hasSeenWelcome = localStorage.getItem('welcome_seen') || localStorage.getItem('welcome-ui-seen');
+    // Load saved avatar color if exists
+    const savedAvatarColor = localStorage.getItem('avatar_color');
+    if (savedAvatarColor) {
+      setSelectedAvatarColor(savedAvatarColor);
+      setSelectedBannerColor1(savedAvatarColor);
+    }
     if (!hasSeenWelcome || forceOpen) {
       setIsOpen(true);
     }
@@ -59,6 +68,10 @@ export default function WelcomeUI({ onComplete, preAcceptRules = false, forceOpe
 
   const handleComplete = () => {
     localStorage.setItem('welcome_seen', 'true');
+    localStorage.setItem('avatar_color', selectedAvatarColor);
+    localStorage.setItem('banner_color1', selectedBannerColor1);
+    localStorage.setItem('banner_color2', selectedBannerColor2);
+    localStorage.setItem('banner_style', selectedBannerStyle);
     setIsOpen(false);
     onComplete();
   };
@@ -313,13 +326,82 @@ export default function WelcomeUI({ onComplete, preAcceptRules = false, forceOpe
                           {AVATAR_COLORS.map((color) => (
                             <button
                               key={color}
-                              onClick={() => setSelectedAvatarColor(color)}
+                              onClick={() => {
+                                setSelectedAvatarColor(color);
+                                setSelectedBannerColor1(color);
+                                // Randomize banner color 2 based on new avatar color
+                                const hash = color.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+                                const hue = (hash * 7) % 360;
+                                setSelectedBannerColor2(`hsl(${hue}, 70%, 50%)`);
+                              }}
                               className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
                                 selectedAvatarColor === color ? 'border-primary scale-110' : 'border-border'
                               }`}
                               style={{ backgroundColor: color }}
                             />
                           ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Banner Preview */}
+                  <div className="bg-muted/30 border border-border rounded-lg p-4 md:p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Palette className="h-5 w-5 text-primary" />
+                      <h4 className="font-medium text-foreground">Banner Colors</h4>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="h-16 rounded-lg" style={{
+                        background: selectedBannerStyle === 'gradient'
+                          ? `linear-gradient(135deg, ${selectedBannerColor1}, ${selectedBannerColor2})`
+                          : selectedBannerColor1
+                      }} />
+                      <div className="flex gap-3">
+                        <div>
+                          <label className="text-sm font-medium">Banner Color 1</label>
+                          <input
+                            type="color"
+                            value={selectedBannerColor1.startsWith('hsl') ? '#3B82F6' : selectedBannerColor1}
+                            onChange={(e) => setSelectedBannerColor1(e.target.value)}
+                            className="h-10 w-20 mt-1 p-1 cursor-pointer rounded border border-border"
+                          />
+                        </div>
+                        {selectedBannerStyle === 'gradient' && (
+                          <div>
+                            <label className="text-sm font-medium">Banner Color 2</label>
+                            <input
+                              type="color"
+                              value={selectedBannerColor2.startsWith('hsl') ? '#6366F1' : selectedBannerColor2}
+                              onChange={(e) => setSelectedBannerColor2(e.target.value)}
+                              className="h-10 w-20 mt-1 p-1 cursor-pointer rounded border border-border"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Banner Style</label>
+                        <div className="flex gap-2 mt-1">
+                          <button
+                            onClick={() => setSelectedBannerStyle('solid')}
+                            className={`px-3 py-1.5 rounded-lg border-2 transition-all ${
+                              selectedBannerStyle === 'solid'
+                                ? 'border-primary bg-primary/10'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                          >
+                            Solid
+                          </button>
+                          <button
+                            onClick={() => setSelectedBannerStyle('gradient')}
+                            className={`px-3 py-1.5 rounded-lg border-2 transition-all ${
+                              selectedBannerStyle === 'gradient'
+                                ? 'border-primary bg-primary/10'
+                                : 'border-border hover:border-primary/50'
+                            }`}
+                          >
+                            Gradient
+                          </button>
                         </div>
                       </div>
                     </div>

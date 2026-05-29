@@ -609,14 +609,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <div key={activity.id} className="p-2 rounded-md hover:bg-accent transition-colors">
                   <div className="flex items-center gap-2">
                     <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                      className="w-8 h-8 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs sm:text-[10px] font-bold shrink-0"
                       style={{ backgroundColor: activity.color, color: 'white' }}
                     >
                       {(activity.name?.[0] || 'U').toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-foreground truncate">{activity.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">{activity.action}</div>
+                      <div className="text-sm sm:text-xs text-foreground truncate">{activity.name}</div>
+                      <div className="text-xs sm:text-[10px] text-muted-foreground truncate">{activity.action}</div>
                     </div>
                   </div>
                 </div>
