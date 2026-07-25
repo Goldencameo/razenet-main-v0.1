@@ -181,20 +181,20 @@ export default function MessageItem({
       <div className="w-10 shrink-0">
         {showAvatar && <MessageAvatar sender={sender} showAvatar={showAvatar} />}
       </div>
-      
+
       <div className="flex flex-col max-w-[70%]">
-        {showUsername && (
+        {isFirstInChain && (
           <div className="flex items-baseline gap-2 mb-1">
             <span className="text-xs font-semibold text-foreground">
               {sender?.display_name || sender?.username || 'User'}
             </span>
             <span className="text-xs text-muted-foreground">
-              {formattedTime}
+              {formattedDate}
             </span>
           </div>
         )}
-        
-        <div 
+
+        <div
           className="relative group/message"
           onContextMenu={handleContextMenu}
           onMouseDown={(e) => {
@@ -203,10 +203,10 @@ export default function MessageItem({
             }
           }}
         >
-          <div 
+          <div
             className={`px-3.5 py-2 ${
-              isOwn 
-                ? 'bg-primary text-primary-foreground' 
+              isOwn
+                ? 'bg-primary text-primary-foreground'
                 : 'bg-card border border-border'
             } ${
               isFirstInChain ? 'rounded-tl-2xl rounded-tr-2xl rounded-br-2xl' :

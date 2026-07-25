@@ -8,18 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import EmptyBubble from '@/components/EmptyBubble';
+import RazePlayerInstallDialog from '@/components/RazePlayerInstallDialog';
+import { useRazePlayerLaunch } from '@/hooks/useRazePlayerLaunch';
 import { useDocumentTitle } from '@/components/DocumentTitle';
 import {
   ArrowLeft, Play, Bell, Plus, Star, ThumbsUp, ThumbsDown,
   ChevronLeft, ChevronRight, Edit, Trash2, EyeOff, Heart, Users, Link2, Award, Clock,
   Image as ImageIcon, X, MessageCircle, Share2, Calendar, MapPin, Ticket,
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 
 function gradientFor(name: string, salt: number): string {
   const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) + salt * 137;
@@ -147,6 +143,7 @@ export default function GamePage() {
   const [selectedNews, setSelectedNews] = useState<any>(null);
   const [discussionOpen, setDiscussionOpen] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const { playGame, launching, showInstallModal, setShowInstallModal } = useRazePlayerLaunch();
 
   const { data: game } = useQuery({
     queryKey: ['game', id],
@@ -844,10 +841,12 @@ export default function GamePage() {
   const avgStars = totalRatings > 0 ? (totalStars / totalRatings).toFixed(1) : '0.0';
 
   return (
-    <div className="p-4 sm:p-6">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
-        <ArrowLeft className="h-4 w-4" /> {t('game.back')}
-      </button>
+    <>
+      <RazePlayerInstallDialog open={showInstallModal} onOpenChange={setShowInstallModal} />
+      <div className="p-4 sm:p-6">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> {t('game.back')}
+        </button>
 
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left column */}
@@ -920,8 +919,10 @@ export default function GamePage() {
             <Button
               className="h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 active:scale-[0.98] transition-transform"
               size="lg"
+              onClick={() => id && playGame(id)}
+              disabled={launching}
             >
-              <Play className="h-5 w-5 mr-2" /> {t('game.playNow')}
+              <Play className="h-5 w-5 mr-2" /> {launching ? t('razeplayer.launching') : t('game.playNow')}
             </Button>
             <div className="flex gap-2">
               <Button
@@ -1159,8 +1160,8 @@ export default function GamePage() {
           </div>
 
           <div className="hidden lg:block space-y-3">
-            <Button className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70" size="lg">
-              <Play className="h-5 w-5 mr-2" /> {t('game.playNow')}
+            <Button className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70" size="lg" onClick={() => id && playGame(id)} disabled={launching}>
+              <Play className="h-5 w-5 mr-2" /> {launching ? t('razeplayer.launching') : t('game.playNow')}
             </Button>
 
             <div className="flex gap-2">
@@ -1444,6 +1445,7 @@ export default function GamePage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </>
   );
 }

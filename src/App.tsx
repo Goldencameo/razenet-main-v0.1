@@ -39,6 +39,7 @@ import RedeemCodes from "@/pages/RedeemCodes";
 import Inventory from "@/pages/Inventory";
 import Avatar from "@/pages/Avatar";
 import Music from "@/pages/Music";
+import Download from "@/pages/Download";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -87,6 +88,7 @@ const AppRoutes = () => (
     <Route path="/redeem-codes" element={<ProtectedRoute><RedeemCodes /></ProtectedRoute>} />
     <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
     <Route path="/avatar" element={<ProtectedRoute><Avatar /></ProtectedRoute>} />
+    <Route path="/download" element={<ProtectedRoute><Download /></ProtectedRoute>} />
     <Route path="/music" element={<ProtectedRoute><Music /></ProtectedRoute>} />
     <Route path="*" element={<NotFound />} />
   </Routes>

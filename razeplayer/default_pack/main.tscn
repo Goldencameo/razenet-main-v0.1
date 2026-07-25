@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=3 uid="uid://default_pack_main"]
+
+[ext_resource type="PackedScene" uid="uid://player_scene" path="res://scenes/player.tscn" id="1_player"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_pack"]
+sky_top_color = Color(0.18, 0.22, 0.42, 1)
+sky_horizon_color = Color(0.45, 0.35, 0.55, 1)
+
+[sub_resource type="Sky" id="Sky_pack"]
+sky_material = SubResource("ProceduralSkyMaterial_pack")
+
+[sub_resource type="Environment" id="Environment_pack"]
+background_mode = 2
+sky = SubResource("Sky_pack")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_pack"]
+size = Vector3(24, 1, 24)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pack"]
+albedo_color = Color(0.55, 0.28, 0.75, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_pack"]
+size = Vector3(24, 1, 24)
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_pack")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.939693, -0.17101, 0.296198, 0, 0.866025, 0.5, -0.34202, -0.469846, 0.813798, 0, 10, 0)
+
+[node name="Ground" type="StaticBody3D" parent="."]
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_pack")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_pack")
+surface_material_override/0 = SubResource("StandardMaterial3D_pack")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 2)
+
+[node name="SpawnLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -4)
+text = "Loaded from default_pack"
+font_size = 48
+outline_size = 8

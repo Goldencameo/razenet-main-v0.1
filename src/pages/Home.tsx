@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useFriends } from '@/hooks/useFriendship';
 import { useI18n } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,7 +8,9 @@ import GameCard from '@/components/GameCard';
 import SectionWithArrows from '@/components/SectionWithArrows';
 import HorizontalScroller from '@/components/HorizontalScroller';
 import WelcomeUI from '@/components/WelcomeUI';
-import { Users, Users2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Users, Users2, Download } from 'lucide-react';
+import RazePlayerDownloadButton from '@/components/RazePlayerDownloadButton';
 
 function gradientFor(name: string, salt: number): string {
   const hash = name.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0) + salt * 137;
@@ -69,6 +71,22 @@ export default function HomePage() {
         <h2 className="text-lg sm:text-xl font-semibold text-foreground mt-0.5">
           {greeting}
         </h2>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-5 mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Download className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">{t('download.homeCta')}</h3>
+          </div>
+          <p className="text-sm text-muted-foreground">{t('download.homeDesc')}</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <RazePlayerDownloadButton />
+          <Button variant="outline" asChild>
+            <Link to="/download">{t('download.allPlatforms')}</Link>
+          </Button>
+        </div>
       </div>
 
       {/* Friends Section */}
